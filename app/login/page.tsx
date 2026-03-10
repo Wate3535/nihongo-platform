@@ -1,72 +1,38 @@
-"use client"
+import Link from "next/link"
+import { LoginForm } from "@/components/auth/login-form"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-
-export function LoginForm() {
-
-  const router = useRouter()
-
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    })
-
-    if (error) {
-      alert("Email yoki parol noto‘g‘ri")
-      console.log(error)
-      return
-    }
-
-    router.push("/dashboard")
-  }
-
+export default function LoginPage() {
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email</Label>
-
-        <Input
-          id="email"
-          type="email"
-          placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-
+    <div className="flex min-h-screen">
+      
+      <div className="hidden flex-1 items-center justify-center bg-primary lg:flex">
+        <div className="max-w-md px-8 text-center text-primary-foreground">
+          <h2 className="text-4xl font-bold tracking-tight">Xush kelibsiz !</h2>
+          <p className="mt-4 text-lg leading-relaxed opacity-90">
+            Yapon tilini o‘rganish sayohatingizni davom ettiring.
+          </p>
+          <div className="mt-10 text-6xl font-bold opacity-70">
+            日本語
+          </div>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-1 items-center justify-center bg-background px-6 py-12">
+        <div className="w-full max-w-md">
 
-        <Label htmlFor="password">Parol</Label>
+          <Link href="/" className="text-2xl font-bold text-primary">
+            NihonGo
+          </Link>
 
-        <Input
-          id="password"
-          type="password"
-          placeholder="Parol"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+          <h1 className="mt-6 text-2xl font-bold text-foreground">
+            Hisobingizga kiring
+          </h1>
 
+          <LoginForm />
+
+        </div>
       </div>
 
-      <Button type="submit">
-        Kirish
-      </Button>
-
-    </form>
+    </div>
   )
 }
