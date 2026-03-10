@@ -7,8 +7,7 @@
     "dev": "next dev --turbo",
     "build": "NODE_OPTIONS=--max-old-space-size=4096 next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "npm install --legacy-peer-deps"
+    "lint": "next lint"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
