@@ -15,16 +15,22 @@ export function LessonInfo({ title, lessonNumber, totalLessons, onPrevious, onNe
   return (
     <div className="mt-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-primary">
-            Lesson {lessonNumber} of {totalLessons}
+            {lessonNumber}-dars / {totalLessons}
           </p>
-          <h2 className="mt-1 text-xl font-bold text-foreground">{title}</h2>
+
+          <h2 className="mt-1 text-xl font-bold text-foreground">
+            {title}
+          </h2>
+
           <p className="mt-2 leading-relaxed text-muted-foreground">
-            In this lesson, you will learn the correct stroke order and pronunciation for each
-            character. Practice writing along with the video for the best results.
+            Ushbu darsda siz har bir belgining to‘g‘ri yozilish tartibi va talaffuzini o‘rganasiz.
+            Eng yaxshi natijaga erishish uchun video bilan birga yozishni mashq qiling.
           </p>
         </div>
+
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -34,18 +40,20 @@ export function LessonInfo({ title, lessonNumber, totalLessons, onPrevious, onNe
             onClick={onPrevious}
           >
             <ChevronLeft className="mr-1 h-4 w-4" />
-            Previous
+            Oldingi
           </Button>
+
           <Button
             size="sm"
             className="rounded-lg"
             disabled={!onNext}
             onClick={onNext}
           >
-            Next
+            Keyingi
             <ChevronRight className="ml-1 h-4 w-4" />
           </Button>
         </div>
+
       </div>
     </div>
   )

@@ -6,67 +6,83 @@ dotenv.config({ path: ".env.local" })
 
 const token = process.env.TELEGRAM_BOT_TOKEN
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-)
-
 if (!token) {
   console.error("❌ TELEGRAM_BOT_TOKEN topilmadi")
   process.exit(1)
 }
 
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+)
+
 const bot = new Telegraf(token)
 
 const ADMIN_ID = 5053672186
 
+
 // ===== START =====
 
-bot.start((ctx) => {
+bot.start(async (ctx) => {
+
+  const telegramId = ctx.from.id
+  const payload = ctx.startPayload
+
+  try {
+
+    if (payload) {
+
+      const { error } = await supabase
+        .from("users")
+        .update({
+          telegram_id: telegramId
+        })
+        .eq("id", payload)
+
+      if (error) {
+        console.log("Supabase error:", error)
+      }
+
+    }
+
+  } catch (err) {
+    console.log("DB xatolik:", err)
+  }
 
   ctx.reply(
 `🇯🇵 NihonGo platformasiga xush kelibsiz!
 
 Bu bot orqali siz yapon tili kursiga to'lov qilishingiz mumkin.
 
-📚 Kurs ichida:
-• Video darslar
-• Kanji mashqlari
-• JLPT testlar
-• Sun'iy intellekt bilan suhbat
-
 💰 Kurs narxi: 200 000 so'm
 
-📸 To'lov qilgandan keyin chekni shu botga yuboring.
-
-⏱ Tasdiqlash odatda 10–15 minut ichida amalga oshiriladi.
-
-👇 Kerakli bo‘limni tanlang`,
+📸 To'lov qilgandan keyin chekni shu botga yuboring.`,
 
 Markup.keyboard([
-  ["💰 To'lov yuborish"],
-  ["📚 Kurs haqida", "📞 Admin"],
-  ["🏠 Bosh sahifa"]
+["💰 To'lov yuborish"],
+["🏠 Bosh sahifa"]
 ]).resize()
 
-  )
+)
 
 })
+
 
 // ===== HOME =====
 
 bot.hears("🏠 Bosh sahifa", (ctx) => {
 
-  ctx.reply("🏠 Bosh sahifa",
+  ctx.reply(
+"🏠 Bosh sahifa",
 
 Markup.keyboard([
-  ["💰 To'lov yuborish"],
-  ["📚 Kurs haqida", "📞 Admin"]
+["💰 To'lov yuborish"]
 ]).resize()
 
-  )
+)
 
 })
+
 
 // ===== TO'LOV =====
 
@@ -78,34 +94,13 @@ bot.hears("💰 To'lov yuborish", (ctx) => {
 💳 5614 6816 2535 2194
 👤 RUSTAMJONOV SODIQJON
 
-📸 Chekni screenshot qilib yuboring.`
+📸 To'lov qilgandan keyin chekni screenshot qilib shu yerga yuboring.
+
+Tasdiqlash odatda 10-15 minut ichida amalga oshiriladi.`
   )
 
 })
 
-// ===== KURS HAQIDA =====
-
-bot.hears("📚 Kurs haqida", (ctx) => {
-
-  ctx.reply(
-`📚 NihonGo kursi
-
-🇯🇵 N5 → N4 darajagacha
-📚 Grammatika
-🗣 Sun'iy intellekt bilan suhbat
-📝 Testlar
-📖 Kanji`
-  )
-
-})
-
-// ===== ADMIN =====
-
-bot.hears("📞 Admin", (ctx) => {
-
-  ctx.reply("Admin: https://t.me/Wate_571")
-
-})
 
 // ===== CHEK QABUL QILISH =====
 
@@ -141,11 +136,12 @@ bot.on("photo", async (ctx) => {
 
   } catch (err) {
 
-    console.error(err)
+    console.error("Xatolik:", err)
 
   }
 
 })
+
 
 // ===== TASDIQLASH =====
 
@@ -155,19 +151,23 @@ bot.action(/approve_(.+)/, async (ctx) => {
 
   try {
 
-    await supabase
+    const { error } = await supabase
       .from("users")
       .update({ paid: true })
       .eq("telegram_id", userId)
 
+    if (error) {
+      console.log("Supabase update error:", error)
+    }
+
     await ctx.telegram.sendMessage(
       userId,
-      "🎉 Siz kursga muvaffaqiyatli qo‘shildingiz!\nPlatformaga kirishingiz mumkin."
+      "🎉 Siz kursga muvaffaqiyatli qo‘shildingiz!\n\nSaytga qaytib kursni ko‘rishingiz mumkin."
     )
 
     await ctx.editMessageReplyMarkup()
 
-    await ctx.answerCbQuery("To'lov tasdiqlandi")
+    await ctx.answerCbQuery("Tasdiqlandi")
 
   } catch (err) {
 
@@ -177,24 +177,32 @@ bot.action(/approve_(.+)/, async (ctx) => {
 
 })
 
+
 // ===== RAD ETISH =====
 
 bot.action(/reject_(.+)/, async (ctx) => {
 
   const userId = ctx.match[1]
 
-  await ctx.telegram.sendMessage(
-    userId,
-    "❌ Chekingiz tasdiqlanmadi.\nIltimos qayta yuboring."
-  )
+  try {
 
-  await ctx.editMessageReplyMarkup()
+    await ctx.telegram.sendMessage(
+      userId,
+      "❌ Chekingiz tasdiqlanmadi.\nIltimos to‘lovni tekshirib qayta yuboring."
+    )
 
-  await ctx.answerCbQuery("To'lov rad etildi")
+    await ctx.editMessageReplyMarkup()
+
+    await ctx.answerCbQuery("To'lov rad etildi")
+
+  } catch (err) {
+    console.log(err)
+  }
 
 })
 
-// ===== START BOT =====
+
+// ===== BOTNI ISHGA TUSHIRISH =====
 
 bot.launch()
 

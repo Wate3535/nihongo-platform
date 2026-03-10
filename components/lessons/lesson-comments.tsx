@@ -10,22 +10,22 @@ const existingComments = [
     id: 1,
     name: "Mika S.",
     initials: "MS",
-    time: "2 hours ago",
-    text: "This lesson really helped me understand the difference between the similar-looking characters. The stroke order animations are great!",
+    time: "2 soat oldin",
+    text: "Bu dars o‘xshash ko‘rinadigan belgilar orasidagi farqni tushunishga juda yordam berdi. Chiziqlarni yozish tartibini ko‘rsatadigan animatsiyalar juda zo‘r!",
   },
   {
     id: 2,
     name: "Alex T.",
     initials: "AT",
-    time: "5 hours ago",
-    text: "Tip for everyone: try writing each character at least 10 times while watching. It really helps with muscle memory.",
+    time: "5 soat oldin",
+    text: "Maslahat: har bir belgini kamida 10 marta yozib ko‘ring. Bu eslab qolishni ancha osonlashtiradi.",
   },
   {
     id: 3,
     name: "Yuna K.",
     initials: "YK",
-    time: "1 day ago",
-    text: "I love how the sensei explains the mnemonics for each character. Makes it so much easier to remember!",
+    time: "1 kun oldin",
+    text: "Sensei har bir belgi uchun beradigan misollar juda yoqdi. Eslab qolish ancha oson bo‘ldi!",
   },
 ]
 
@@ -35,32 +35,34 @@ export function LessonComments() {
   return (
     <div className="mt-8">
       <h3 className="text-lg font-semibold text-foreground">
-        Comments ({existingComments.length})
+        Izohlar ({existingComments.length})
       </h3>
 
-      {/* Add comment */}
+      {/* Yangi izoh qo‘shish */}
       <div className="mt-4 flex gap-3">
         <Avatar className="h-9 w-9 shrink-0">
           <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
             JD
           </AvatarFallback>
         </Avatar>
+
         <div className="flex-1">
           <Textarea
-            placeholder="Add a comment..."
+            placeholder="Izoh yozing..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             className="min-h-[80px] rounded-xl"
           />
+
           <div className="mt-2 flex justify-end">
             <Button size="sm" className="rounded-lg" disabled={!comment.trim()}>
-              Post Comment
+              Izoh qoldirish
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Comment list */}
+      {/* Izohlar ro‘yxati */}
       <div className="mt-6 flex flex-col gap-5">
         {existingComments.map((c) => (
           <div key={c.id} className="flex gap-3">
@@ -69,12 +71,16 @@ export function LessonComments() {
                 {c.initials}
               </AvatarFallback>
             </Avatar>
+
             <div>
               <div className="flex items-baseline gap-2">
                 <p className="text-sm font-semibold text-foreground">{c.name}</p>
                 <span className="text-xs text-muted-foreground">{c.time}</span>
               </div>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{c.text}</p>
+
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                {c.text}
+              </p>
             </div>
           </div>
         ))}

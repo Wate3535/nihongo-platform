@@ -11,7 +11,7 @@ export default function LandingPage() {
       <main>
         <Hero />
         <Features />
-        {/* <Testimonials /> */}
+    
       </main>
       <Footer />
     </div>

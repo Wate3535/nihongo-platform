@@ -3,30 +3,30 @@ import { BookOpen, Clock, Flame, Target } from "lucide-react"
 
 const stats = [
   {
-    label: "Lessons Completed",
+    label: "Tugatilgan darslar",
     value: "47",
-    subtitle: "of 200 total",
+    subtitle: "200 ta darsdan",
     icon: BookOpen,
     color: "text-primary bg-primary/10",
   },
   {
-    label: "Study Streak",
+    label: "O‘qish ketma-ketligi",
     value: "12",
-    subtitle: "days in a row",
+    subtitle: "ketma-ket kun",
     icon: Flame,
     color: "text-chart-5 bg-chart-5/10",
   },
   {
-    label: "Hours Studied",
+    label: "O‘qilgan soatlar",
     value: "86",
-    subtitle: "this month",
+    subtitle: "shu oyda",
     icon: Clock,
     color: "text-chart-3 bg-chart-3/10",
   },
   {
-    label: "JLPT Goal",
+    label: "JLPT maqsadi",
     value: "N3",
-    subtitle: "68% ready",
+    subtitle: "68% tayyor",
     icon: Target,
     color: "text-accent bg-accent/10",
   },

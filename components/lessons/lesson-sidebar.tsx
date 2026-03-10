@@ -21,17 +21,22 @@ interface LessonSidebarProps {
 export function LessonSidebar({ lessons, activeId, onSelect }: LessonSidebarProps) {
   return (
     <Card className="border border-border bg-card">
+
       <CardHeader className="pb-3">
         <CardTitle className="text-base text-foreground">
-          Hiragana & Katakana Mastery
+          Hiragana va Katakana kursi
         </CardTitle>
+
         <p className="text-xs text-muted-foreground">
-          {lessons.filter((l) => l.completed).length} / {lessons.length} lessons completed
+          {lessons.filter((l) => l.completed).length} / {lessons.length} ta dars tugatilgan
         </p>
       </CardHeader>
+
       <CardContent className="px-2 pb-2">
         <ScrollArea className="h-[420px]">
+
           <div className="flex flex-col gap-1 px-1">
+
             {lessons.map((lesson) => (
               <button
                 key={lesson.id}
@@ -43,6 +48,7 @@ export function LessonSidebar({ lessons, activeId, onSelect }: LessonSidebarProp
                     : "text-foreground hover:bg-secondary"
                 )}
               >
+
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center">
                   {lesson.completed ? (
                     <CheckCircle2 className="h-5 w-5 text-chart-3" />
@@ -55,13 +61,23 @@ export function LessonSidebar({ lessons, activeId, onSelect }: LessonSidebarProp
                     />
                   )}
                 </span>
-                <span className="flex-1 truncate">{lesson.title}</span>
-                <span className="shrink-0 text-xs text-muted-foreground">{lesson.duration}</span>
+
+                <span className="flex-1 truncate">
+                  {lesson.title}
+                </span>
+
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {lesson.duration}
+                </span>
+
               </button>
             ))}
+
           </div>
+
         </ScrollArea>
       </CardContent>
+
     </Card>
   )
 }

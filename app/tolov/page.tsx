@@ -2,33 +2,56 @@
 
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
+import { useRouter } from "next/navigation"
 
 export default function PaymentPage() {
 
   const [userId, setUserId] = useState("")
+  const router = useRouter()
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser()
 
-      if (data.user) {
-        setUserId(data.user.id)
+    const getUser = async () => {
+
+      const { data: authData, error: authError } = await supabase.auth.getUser()
+
+      console.log("AUTH USER:", authData)
+
+      if (authError || !authData?.user) {
+        console.log("Auth error:", authError)
+        return
       }
+
+      const { data: userRow, error } = await supabase
+        .from("users")
+        .select("id")
+        .eq("email", authData.user.email)
+        .limit(1)
+        .maybeSingle()
+
+      console.log("USER ROW:", userRow)
+      console.log("DB ERROR:", error)
+
+      if (userRow) {
+        setUserId(userRow.id)
+      }
+
     }
 
     getUser()
-  }, [])
 
-  const copyCard = () => {
-    navigator.clipboard.writeText("5614681625352194")
-    alert("Karta raqami nusxalandi")
-  }
+  }, [])
 
   const openTelegram = () => {
     window.open(`https://t.me/nihongo_tolov_bot?start=${userId}`, "_blank")
   }
 
+  const openCourse = () => {
+    router.push("/dashboard")
+  }
+
   return (
+
     <div className="flex min-h-screen items-center justify-center bg-black text-white px-6">
 
       <div className="bg-zinc-900 p-14 rounded-xl w-[520px] text-center shadow-xl">
@@ -45,40 +68,23 @@ export default function PaymentPage() {
           Chegirmada: 200 000 so'm
         </p>
 
-        <div className="bg-zinc-800 rounded-lg p-4 mb-6">
+        <div className="flex flex-col gap-4 mt-6">
 
-          <p className="text-sm text-gray-300 mb-2">
-            To'lov qilish uchun karta:
-          </p>
+          <button
+            onClick={openTelegram}
+            className="w-full bg-purple-600 hover:bg-purple-700 p-3 rounded-lg font-medium"
+          >
+            🤖 Telegram botga o'tish
+          </button>
 
-          <div className="flex items-center justify-center gap-2 text-lg font-semibold">
-            💳 5614 6816 2535 2194
-
-            <button
-              onClick={copyCard}
-              className="text-xs bg-zinc-700 px-2 py-1 rounded hover:bg-zinc-600"
-            >
-              Nusxalash
-            </button>
-          </div>
-
-          <p className="text-sm text-gray-400 mt-2">
-            👤 RUSTAMJONOV SODIQJON
-          </p>
+          <button
+            onClick={openCourse}
+            className="w-full bg-green-600 hover:bg-green-700 p-3 rounded-lg font-medium"
+          >
+            🎓 Kursga kirish
+          </button>
 
         </div>
-
-        <button
-          onClick={openTelegram}
-          className="w-full bg-purple-600 hover:bg-purple-700 p-3 rounded-lg text-center font-medium"
-        >
-          Telegram botga o'tish
-        </button>
-
-        <p className="text-xs text-gray-400 mt-6">
-          To'lov qilgandan keyin screenshotni Telegram botga yuboring.
-          Tasdiqlash odatda 5–10 minut ichida amalga oshiriladi.
-        </p>
 
       </div>
 

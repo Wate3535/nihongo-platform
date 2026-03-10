@@ -16,10 +16,10 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/lessons", label: "Video Lessons", icon: Video },
-  { href: "/dashboard/chat", label: "AI Speaking", icon: MessageCircle },
-  { href: "/dashboard/profile", label: "Profile", icon: User },
+  { href: "/dashboard", label: "Boshqaruv paneli", icon: LayoutDashboard },
+  { href: "/dashboard/lessons", label: "Video darslar", icon: Video },
+  { href: "/dashboard/chat", label: "AI bilan suhbat", icon: MessageCircle },
+  { href: "/dashboard/profile", label: "Profil", icon: User },
 ]
 
 export function DashboardSidebar() {
@@ -33,6 +33,7 @@ export function DashboardSidebar() {
 
   const sidebarContent = (
     <div className="flex h-full flex-col">
+
       <div className="flex items-center gap-2 px-6 py-5">
         <BookOpen className="h-6 w-6 text-primary" />
         <span className="text-xl font-bold text-primary">NihonGo</span>
@@ -65,9 +66,10 @@ export function DashboardSidebar() {
           href="/"
           className="text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
-          Back to Home
+          Bosh sahifaga qaytish
         </Link>
       </div>
+
     </div>
   )
 
@@ -79,7 +81,7 @@ export function DashboardSidebar() {
         size="icon"
         className="fixed left-4 top-4 z-50 lg:hidden"
         onClick={() => setMobileOpen(!mobileOpen)}
-        aria-label="Toggle sidebar"
+        aria-label="Sidebarni ochish"
       >
         {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </Button>
@@ -92,7 +94,7 @@ export function DashboardSidebar() {
           onKeyDown={() => {}}
           role="button"
           tabIndex={-1}
-          aria-label="Close sidebar"
+          aria-label="Sidebarni yopish"
         />
       )}
 

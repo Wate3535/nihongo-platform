@@ -5,7 +5,7 @@ import { Certificates } from "@/components/profile/certificates"
 export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-5xl">
-      <h1 className="mb-8 text-2xl font-bold text-foreground">Profile & Progress</h1>
+      <h1 className="mb-8 text-2xl font-bold text-foreground">Profil & O'zlashtirish </h1>
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-1">
