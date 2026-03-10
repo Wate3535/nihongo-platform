@@ -1,14 +1,36 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
 
 export default function PaymentPage() {
+
+  const [userId, setUserId] = useState("")
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser()
+
+      if (data.user) {
+        setUserId(data.user.id)
+      }
+    }
+
+    getUser()
+  }, [])
+
   const copyCard = () => {
     navigator.clipboard.writeText("5614681625352194")
     alert("Karta raqami nusxalandi")
   }
 
+  const openTelegram = () => {
+    window.open(`https://t.me/nihongo_tolov_bot?start=${userId}`, "_blank")
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-black text-white px-6">
+
       <div className="bg-zinc-900 p-14 rounded-xl w-[520px] text-center shadow-xl">
 
         <h1 className="text-2xl font-bold mb-4">
@@ -46,21 +68,20 @@ export default function PaymentPage() {
 
         </div>
 
-        <a
-          href="https://t.me/nihongo_tolov_bot"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block w-full bg-purple-600 hover:bg-purple-700 p-3 rounded-lg text-center font-medium"
+        <button
+          onClick={openTelegram}
+          className="w-full bg-purple-600 hover:bg-purple-700 p-3 rounded-lg text-center font-medium"
         >
-          Telegram orqali to'lash
-        </a>
+          Telegram botga o'tish
+        </button>
 
         <p className="text-xs text-gray-400 mt-6">
-          To'lov qilgandan keyin screenshotni Telegram botga yuboring.  
+          To'lov qilgandan keyin screenshotni Telegram botga yuboring.
           Tasdiqlash odatda 5–10 minut ichida amalga oshiriladi.
         </p>
 
       </div>
+
     </div>
   )
 }
