@@ -4,13 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { CheckCircle2, PlayCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-interface Lesson {
-  id: number
-  title: string
-  duration: string
-  completed: boolean
-}
+import { Lesson } from "@/types/lesson"
 
 interface LessonSidebarProps {
   lessons: Lesson[]

@@ -1,56 +1,72 @@
 "use client"
 
-import { useState } from "react"
-import { VideoPlayer } from "@/components/lessons/video-player"
-import { LessonSidebar } from "@/components/lessons/lesson-sidebar"
-import { LessonInfo } from "@/components/lessons/lesson-info"
-import { LessonComments } from "@/components/lessons/lesson-comments"
+import Link from "next/link"
 
-const lessonsData = [
-  { id: 1, title: "Introduction to Hiragana", duration: "8:30", completed: true },
-  { id: 2, title: "Vowel Characters (a, i, u, e, o)", duration: "12:15", completed: true },
-  { id: 3, title: "K-row Characters", duration: "10:45", completed: true },
-  { id: 4, title: "S-row Characters", duration: "11:20", completed: false },
-  { id: 5, title: "T-row Characters", duration: "9:50", completed: false },
-  { id: 6, title: "N-row Characters", duration: "10:10", completed: false },
-  { id: 7, title: "H-row Characters", duration: "11:05", completed: false },
-  { id: 8, title: "M-row Characters", duration: "9:30", completed: false },
-  { id: 9, title: "Y, R, W, N Characters", duration: "13:40", completed: false },
-  { id: 10, title: "Dakuten & Handakuten", duration: "12:00", completed: false },
+const categories = [
+  { name: "Alifbo", slug: "alphabet", icon: "📚" },
+  { name: "Grammatika", slug: "grammar", icon: "📖" },
+  { name: "Kanji", slug: "kanji", icon: "🈶" },
+  { name: "So'z boyligi", slug: "vocabulary", icon: "📝" },
+  { name: "Choukai", slug: "listening", icon: "🎧" },
+  { name: "Dokkai", slug: "reading", icon: "📄" },
 ]
 
 export default function LessonsPage() {
-  const [activeLesson, setActiveLesson] = useState(lessonsData[3])
-
-  const currentIndex = lessonsData.findIndex((l) => l.id === activeLesson.id)
-  const prevLesson = currentIndex > 0 ? lessonsData[currentIndex - 1] : null
-  const nextLesson = currentIndex < lessonsData.length - 1 ? lessonsData[currentIndex + 1] : null
-
   return (
-    <div className="mx-auto max-w-7xl">
-      <div className="flex flex-col gap-6 xl:flex-row">
-        {/* Main content */}
-        <div className="flex-1">
-          <VideoPlayer title={activeLesson.title} />
-          <LessonInfo
-            title={activeLesson.title}
-            lessonNumber={activeLesson.id}
-            totalLessons={lessonsData.length}
-            onPrevious={prevLesson ? () => setActiveLesson(prevLesson) : undefined}
-            onNext={nextLesson ? () => setActiveLesson(nextLesson) : undefined}
-          />
-          <LessonComments />
-        </div>
+    <div className="mx-auto max-w-7xl px-6">
 
-        {/* Lesson list sidebar */}
-        <div className="w-full xl:w-80">
-          <LessonSidebar
-            lessons={lessonsData}
-            activeId={activeLesson.id}
-            onSelect={(lesson) => setActiveLesson(lesson)}
-          />
-        </div>
+      <h1 className="text-4xl font-bold mb-12">
+        Video dars kategoriyalari
+      </h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+
+        {categories.map((cat) => (
+
+          <Link
+            key={cat.slug}
+            href={`/dashboard/lessons/${cat.slug}`}
+          >
+
+            <div className="
+              group
+              p-16
+              bg-card
+              rounded-3xl
+              border border-border
+              hover:border-primary
+              hover:bg-primary/10
+              transition-all
+              duration-300
+              cursor-pointer
+              text-center
+              hover:scale-110
+              shadow-lg
+            ">
+
+              <div className="
+                text-6xl
+                mb-6
+                transition-all
+                duration-300
+                group-hover:scale-125
+                group-hover:-rotate-6
+              ">
+                {cat.icon}
+              </div>
+
+              <h2 className="text-2xl font-semibold">
+                {cat.name}
+              </h2>
+
+            </div>
+
+          </Link>
+
+        ))}
+
       </div>
+
     </div>
   )
 }

@@ -3,26 +3,37 @@ import { Badge } from "@/components/ui/badge"
 import { Award, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-const certificates = [
+type CertificateStatus = "earned" | "in-progress" | "locked"
+
+type Certificate = {
+  title: string
+  date: string
+  status: CertificateStatus
+  file?: string
+}
+
+const certificates: Certificate[] = [
   {
-    title: "Hiragana kursi sertifikati",
+    title: "Hiragana va Katakana kursi sertifikati",
     date: "2025-yil Dekabr",
-    status: "earned" as const,
+    status: "earned",
+    file: "/certificates/alifbo_sertifikat.png",
   },
   {
-    title: "Katakana kursi sertifikati",
+    title: "N5 daraja kursi sertifikati",
     date: "2026-yil Yanvar",
-    status: "earned" as const,
+    status: "earned",
+    file: "/certificates/N5_sertifikat.png",
   },
   {
     title: "N5 Grammatika asoslari",
     date: "Jarayonda",
-    status: "in-progress" as const,
+    status: "in-progress",
   },
   {
     title: "N4 Sertifikat tayyorlov",
     date: "Yopiq",
-    status: "locked" as const,
+    status: "locked",
   },
 ]
 
@@ -52,8 +63,8 @@ export function Certificates() {
                 cert.status === "earned"
                   ? "bg-primary/10 text-primary"
                   : cert.status === "in-progress"
-                    ? "bg-chart-4/10 text-chart-4"
-                    : "bg-secondary text-muted-foreground"
+                  ? "bg-chart-4/10 text-chart-4"
+                  : "bg-secondary text-muted-foreground"
               }`}
             >
               <Award className="h-5 w-5" />
@@ -68,16 +79,23 @@ export function Certificates() {
               </p>
             </div>
 
-            {cert.status === "earned" ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="shrink-0"
-                aria-label="Sertifikatni yuklab olish"
-              >
-                <Download className="h-4 w-4" />
-              </Button>
+            {cert.status === "earned" && cert.file ? (
+
+              <a href={cert.file} download>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0"
+                  aria-label="Sertifikatni yuklab olish"
+                >
+                  <Download className="h-4 w-4" />
+                </Button>
+
+              </a>
+
             ) : (
+
               <Badge
                 variant="secondary"
                 className={`shrink-0 rounded-full ${
@@ -88,6 +106,7 @@ export function Certificates() {
               >
                 {cert.status === "in-progress" ? "Jarayonda" : "Yopiq"}
               </Badge>
+
             )}
 
           </div>

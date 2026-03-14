@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Send, Mic, MicOff, Bot, Volume2 } from "lucide-react"
+import { Send, Mic, MicOff, Bot } from "lucide-react"
 
 interface Message {
   id: number
@@ -30,12 +30,52 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(false)
 
   const scrollRef = useRef<HTMLDivElement>(null)
+  const recognitionRef = useRef<any>(null)
 
+  // chat pastga scroll
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
   }, [messages])
+
+  // Speech Recognition setup
+  useEffect(() => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition
+
+    if (!SpeechRecognition) {
+      console.log("Speech recognition supported emas")
+      return
+    }
+
+    const recognition = new SpeechRecognition()
+
+    recognition.lang = "ja-JP"
+    recognition.interimResults = false
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript
+      setInput(transcript)
+    }
+
+    recognition.onend = () => {
+      setIsRecording(false)
+    }
+
+    recognitionRef.current = recognition
+  }, [])
+
+  // AI ni gapirtirish
+  function speak(text: string) {
+    const utterance = new SpeechSynthesisUtterance(text)
+
+    utterance.lang = "ja-JP"
+    utterance.rate = 0.9
+
+    speechSynthesis.speak(utterance)
+  }
 
   async function handleSend() {
     if (!input.trim()) return
@@ -70,6 +110,10 @@ export default function ChatPage() {
       }
 
       setMessages((prev) => [...prev, aiMessage])
+
+      // AI javobni ovoz bilan o‘qiydi
+      speak(aiMessage.content)
+
     } catch (error) {
       console.error("AI error:", error)
     }
@@ -84,12 +128,26 @@ export default function ChatPage() {
     }
   }
 
+  function toggleMic() {
+    if (!recognitionRef.current) return
+
+    if (isRecording) {
+      recognitionRef.current.stop()
+      setIsRecording(false)
+    } else {
+      recognitionRef.current.start()
+      setIsRecording(true)
+    }
+  }
+
   return (
     <div className="mx-auto flex h-[calc(100vh-8rem)] max-w-4xl flex-col">
+
       <div className="mb-4 flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
           <Bot className="h-5 w-5" />
         </div>
+
         <div>
           <h1 className="text-lg font-bold text-foreground">
             Sun’iy intellektli gapirish murabbiyi
@@ -101,8 +159,10 @@ export default function ChatPage() {
       </div>
 
       <Card className="flex flex-1 flex-col overflow-hidden border border-border bg-card">
+
         <ScrollArea className="flex-1 p-4" ref={scrollRef}>
           <div className="flex flex-col gap-5">
+
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -110,6 +170,7 @@ export default function ChatPage() {
                   msg.role === "user" ? "flex-row-reverse" : ""
                 }`}
               >
+
                 <Avatar className="h-8 w-8 shrink-0">
                   <AvatarFallback
                     className={
@@ -131,6 +192,7 @@ export default function ChatPage() {
                 >
                   <p className="text-sm leading-relaxed">{msg.content}</p>
                 </div>
+
               </div>
             ))}
 
@@ -139,16 +201,19 @@ export default function ChatPage() {
                 AI yozmoqda...
               </div>
             )}
+
           </div>
         </ScrollArea>
 
         <div className="border-t border-border p-4">
+
           <div className="flex items-center gap-2">
+
             <Button
               variant={isRecording ? "destructive" : "outline"}
               size="icon"
               className="shrink-0 rounded-full"
-              onClick={() => setIsRecording(!isRecording)}
+              onClick={toggleMic}
             >
               {isRecording ? (
                 <MicOff className="h-4 w-4" />
@@ -158,7 +223,7 @@ export default function ChatPage() {
             </Button>
 
             <Input
-              placeholder="Type in English or Japanese..."
+              placeholder="Type or speak Japanese..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -173,14 +238,17 @@ export default function ChatPage() {
             >
               <Send className="h-4 w-4" />
             </Button>
+
           </div>
 
           {isRecording && (
             <p className="mt-2 text-center text-xs text-destructive">
-              Yozib olinmoqda… Hozir gapiring.
+              🎤 Yozib olinmoqda… Hozir gapiring.
             </p>
           )}
+
         </div>
+
       </Card>
     </div>
   )
