@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Eye, EyeOff } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 
-export function LoginForm() {
+function LoginFormInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -51,7 +51,6 @@ export function LoginForm() {
         <div className="text-red-500 text-sm">{error}</div>
       )}
 
-      {/* EMAIL */}
       <div className="flex flex-col gap-2">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -65,7 +64,6 @@ export function LoginForm() {
         />
       </div>
 
-      {/* PASSWORD */}
       <div className="flex flex-col gap-2">
         <Label htmlFor="password">Parol</Label>
 
@@ -93,7 +91,6 @@ export function LoginForm() {
           </button>
         </div>
 
-        {/* 🔥 SHU YERGA QO‘SHILDI */}
         <div className="flex justify-end">
           <button
             type="button"
@@ -106,11 +103,18 @@ export function LoginForm() {
 
       </div>
 
-      {/* BUTTON */}
       <Button type="submit" className="mt-2 rounded-lg" disabled={loading}>
         {loading ? "Kuting..." : "Log In"}
       </Button>
 
     </form>
+  )
+}
+
+export function LoginForm() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginFormInner />
+    </Suspense>
   )
 }
