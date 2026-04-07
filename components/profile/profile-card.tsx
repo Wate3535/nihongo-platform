@@ -1,147 +1,148 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useRef, useState, useEffect } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { MapPin, Calendar, BookOpen } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 
-import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
+export function ProfileCard({ user }: { user: any }) {
 
-import { MapPin, Calendar, BookOpen } from "lucide-react"
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [avatar, setAvatar] = useState(user?.avatar_url)
 
-export function ProfileCard() {
-
-  const [profile, setProfile] = useState<any>(null)
+  // ⏰ REAL TIME
+  const [now, setNow] = useState(new Date())
 
   useEffect(() => {
-    fetchProfile()
+    const interval = setInterval(() => {
+      setNow(new Date())
+    }, 1000)
+
+    return () => clearInterval(interval)
   }, [])
 
-  const fetchProfile = async () => {
-
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .limit(1)
-      .single()
-
-    if (error) {
-      console.log(error)
-      return
-    }
-
-    setProfile(data)
+  const handleClick = () => {
+    fileInputRef.current?.click()
   }
 
-  const handleUpload = async (e: any) => {
-
+  const handleFileChange = async (e: any) => {
     const file = e.target.files[0]
     if (!file) return
 
-    if (!profile) {
-      console.log("Profile hali yuklanmagan")
-      return
-    }
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${user.id}.${fileExt}`
 
-    const fileName = `${Date.now()}-${file.name}`
-
-    const { error } = await supabase
-      .storage
-      .from("avatars")
-      .upload(fileName, file)
+    const { error } = await supabase.storage
+      .from('avatars')
+      .upload(fileName, file, { upsert: true })
 
     if (error) {
-      console.log(error)
+      console.error("UPLOAD ERROR:", error)
       return
     }
 
-    const { data } = supabase
-      .storage
-      .from("avatars")
+    const { data } = supabase.storage
+      .from('avatars')
       .getPublicUrl(fileName)
 
-    await supabase
-      .from("profiles")
-      .update({
-        avatar_url: data.publicUrl
-      })
-      .eq("id", profile.id)
+    const publicUrl = data.publicUrl
 
-    fetchProfile()
+    await supabase
+      .from('users')
+      .update({ avatar_url: publicUrl })
+      .eq('id', user.id)
+
+    setAvatar(publicUrl)
   }
+
+  const months = [
+    "yanvar",
+    "fevral",
+    "mart",
+    "aprel",
+    "may",
+    "iyun",
+    "iyul",
+    "avgust",
+    "sentyabr",
+    "oktyabr",
+    "noyabr",
+    "dekabr",
+  ]
+  const formattedToday = `${now.getFullYear()}-yil ${now.getDate()}-${months[now.getMonth()]}`
 
   return (
     <Card className="border border-border bg-card">
       <CardContent className="flex flex-col items-center p-6 text-center">
 
-        <label className="cursor-pointer">
-
+        {/* Avatar */}
+        <div onClick={handleClick} className="cursor-pointer">
           <Avatar className="h-24 w-24">
-
-            {profile?.avatar_url ? (
-
-              <img
-                src={profile.avatar_url}
-                className="h-full w-full rounded-full object-cover"
-              />
-
-            ) : (
-
-              <AvatarFallback className="bg-primary/10 text-2xl font-bold text-primary">
-                {profile?.full_name?.[0] || "U"}
-              </AvatarFallback>
-
-            )}
-
+            <AvatarImage src={avatar} />
+            <AvatarFallback className="bg-primary/10 text-2xl font-bold text-primary">
+              {user?.name?.[0] || "U"}
+            </AvatarFallback>
           </Avatar>
+        </div>
 
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleUpload}
-          />
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          className="hidden"
+          onChange={handleFileChange}
+        />
 
-        </label>
-
+        {/* Name */}
         <h2 className="mt-4 text-xl font-bold text-foreground">
-          {profile?.full_name || "John Doe"}
+          {user?.name}
         </h2>
 
         <p className="text-sm text-muted-foreground">
-          {profile?.email || "john.doe@example.com"}
+          {user?.email}
         </p>
 
+        {/* Badges */}
         <div className="mt-3 flex gap-2">
-
           <Badge variant="secondary" className="rounded-full">
-            {profile?.level || "N4 daraja"}
+            {user?.level}
           </Badge>
 
           <Badge
             variant="secondary"
             className="rounded-full bg-primary/10 text-primary"
           >
-            12 kunlik ketma-ket o‘qish
+            Faol o‘quvchi
           </Badge>
-
         </div>
 
+        {/* INFO */}
         <div className="mt-6 w-full space-y-3 text-left">
 
+          {/* LOCATION */}
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4 shrink-0" />
-            <span>{profile?.location || "Tashkent"}</span>
+            <MapPin className="h-4 w-4" />
+            <span>{user?.location || "Manzil kiritilmagan"}</span>
           </div>
 
+          {/* DATE */}
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <Calendar className="h-4 w-4 shrink-0" />
-            <span>2025-yil martda qo‘shilgan</span>
+            <Calendar className="h-4 w-4" />
+            <span>{formattedToday}</span>
           </div>
 
+          {/* TIME */}
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <BookOpen className="h-4 w-4 shrink-0" />
-            <span>{profile?.completed_lessons || 0} ta dars tugatilgan</span>
+            <span>⏰</span>
+            <span>{now.toLocaleTimeString("uz-UZ")}</span>
+          </div>
+
+          {/* PROGRESS */}
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <BookOpen className="h-4 w-4" />
+            <span>0 ta dars tugatilgan</span>
           </div>
 
         </div>
@@ -150,4 +151,3 @@ export function ProfileCard() {
     </Card>
   )
 }
-

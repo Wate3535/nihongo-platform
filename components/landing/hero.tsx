@@ -1,64 +1,122 @@
-import Link from "next/link"
+"use client"
+
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Play } from "lucide-react"
+import { ArrowRight } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { supabase } from "@/lib/supabase"
+import { useState, useMemo } from "react"
+import { DemoVideoModal } from "@/components/demo-video-modal"
 
 export function Hero() {
-  return (
-    <section className="relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-40 right-0 h-[500px] w-[500px] rounded-full bg-primary/5 blur-3xl" />
-        <div className="absolute -bottom-40 left-0 h-[400px] w-[400px] rounded-full bg-accent/5 blur-3xl" />
-      </div>
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
 
-      <div className="mx-auto flex max-w-7xl flex-col items-center px-6 pb-20 pt-20 text-center lg:pt-32">
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm text-muted-foreground">
-          <span className="inline-block h-2 w-2 rounded-full bg-primary" />
-         Butun dunyo bo‘ylab 50 000+ o‘quvchi
+  const bgImage = useMemo(() => {
+    const month = new Date().getMonth() + 1
+    if (month >= 3 && month <= 5) return "/sakura.jpg"
+    if (month >= 6 && month <= 8) return "/yoz-bambo.jpg"
+    if (month >= 9 && month <= 11) return "/kuz.jpg"
+    return "/qish.jpg"
+  }, [])
+
+  const handleBuy = async () => {
+    setLoading(true)
+
+    const { data: authData } = await supabase.auth.getUser()
+
+    if (!authData?.user) {
+      router.push("/login?redirect=/tolov")
+      return
+    }
+
+    const userId = authData.user.id
+
+    const { data: enrollment } = await supabase
+      .from("enrollments")
+      .select("*")
+      .eq("user_id", userId)
+
+    if (enrollment && enrollment.length > 0 && enrollment[0].status === "approved") {
+      router.push("/dashboard")
+    } else {
+      router.push("/tolov")
+    }
+
+    setLoading(false)
+  }
+
+  return (
+    <section className="relative h-screen flex items-center justify-center text-center text-white overflow-hidden">
+
+      {/* BG */}
+      <div
+        className="absolute inset-0 -z-20 bg-cover bg-center"
+        style={{ backgroundImage: `url('${bgImage}')` }}
+      />
+
+      {/* overlay */}
+      <div className="absolute inset-0 bg-black/50 -z-10" />
+
+      {/* CONTENT */}
+      <div className="z-10 max-w-5xl px-6">
+
+        {/* 🔥 BADGE (FIXED — ENDI SOTADI) */}
+        <div className="
+          inline-flex items-center gap-2
+          px-6 py-3 mb-8
+          rounded-full
+          bg-white/80 text-black
+          text-base font-semibold
+          shadow-lg
+        ">
+          Yapon tilini oson va tizimli o‘rganing
         </div>
 
-        <h1 className="max-w-4xl text-balance text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-          Interaktiv darslar yordamida yapon tilini o‘zlashtiring{" "}
-          <span className="text-primary">Ishonch</span> va {" "}
-          <span className="text-accent">Natija</span>
+        {/* 🔥 TITLE */}
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
+          Yapon tilini tez va oson o‘rganing{" "}
+          <span className="bg-gradient-to-r from-indigo-400 to-blue-500 bg-clip-text text-transparent">
+            Ishonch
+          </span>{" "}
+          bilan va{" "}
+          <span className="bg-gradient-to-r from-pink-400 to-red-500 bg-clip-text text-transparent">
+            Natija
+          </span>{" "}
+          oling
         </h1>
 
-        <p className="mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
-          Interaktiv video darslar, sun’iy intellekt yordamidagi gapirish mashqlari va shaxsiy 
-          rivojlanishingizni kuzatib borish tizimi orqali yapon tilini o‘rganing. Boshlang‘ich 
-          darajadan erkin so‘zlash darajasigacha — biz sizga har bir bosqichda yo‘l ko‘rsatamiz.
-        </p>
+       <p className="
+  mt-6
+  text-xl sm:text-2xl
+  text-white font-medium
+  transition-all duration-300
+  hover:scale-105 hover:text-white/90
+">
+  Yordamchingiz bilan gapirishni o‘rganing va real suhbat darajasiga chiqing
+</p>
 
-        <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-          <Button asChild size="lg" className="rounded-full px-8 text-base">
-            <Link href="/register">
-             Kursni sotib olish
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+        <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+
+          <Button
+            onClick={handleBuy}
+            disabled={loading}
+           className="
+                h-14 px-8 rounded-full
+                bg-gradient-to-r from-indigo-500 to-purple-500
+                text-white text-lg font-bold
+                shadow-xl
+                hover:scale-105 transition
+                "
+
+                
+          >
+            {loading ? "Kuting..." : "Kursni boshlash"}
+            <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
-          <Button asChild variant="outline" size="lg" className="rounded-full px-8 text-base bg-transparent">
-            <Link href="#features">
-              <Play className="mr-2 h-4 w-4" />
-              Platforma qanday ishlashini ko‘rish
-            </Link>
-          </Button>
+          <DemoVideoModal />
+
         </div>
 
-        {/* Stats row */}
-        <div className="mt-16 grid w-full max-w-3xl grid-cols-3 gap-8">
-          <div className="flex flex-col items-center">
-            <span className="text-3xl font-bold text-foreground">200+</span>
-            <span className="mt-1 text-sm text-muted-foreground">Video Darslar</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span className="text-3xl font-bold text-foreground">50+</span>
-            <span className="mt-1 text-sm text-muted-foreground">Faol o'rganuvchilar</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span className="text-3xl font-bold text-foreground">4.9</span>
-            <span className="mt-1 text-sm text-muted-foreground">O‘rtacha baho</span>
-          </div>
-        </div>
       </div>
     </section>
   )

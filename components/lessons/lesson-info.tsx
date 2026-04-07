@@ -9,9 +9,31 @@ interface LessonInfoProps {
   totalLessons: number
   onPrevious?: () => void
   onNext?: () => void
+  category: string
 }
 
-export function LessonInfo({ title, lessonNumber, totalLessons, onPrevious, onNext }: LessonInfoProps) {
+// 🔥 DESCRIPTION FUNCTION
+const getDescription = (category: string) => {
+  const descriptions: Record<string, string> = {
+    alphabet: "Ushbu darsda siz hiragana va katakana belgilarining yozilishi va talaffuzini o‘rganasiz.",
+    kanji: "Ushbu darsda siz kanji belgilarining ma’nosi, o‘qilishi va yozilish tartibini o‘rganasiz.",
+    grammar: "Ushbu darsda siz yapon tili grammatikasi va gap tuzish qoidalarini o‘rganasiz.",
+    vocabulary: "Ushbu darsda siz yangi so‘zlar va ularning qo‘llanilishini o‘rganasiz.",
+    listening: "Ushbu darsda siz tinglab tushunish ko‘nikmalaringizni rivojlantirasiz.",
+    reading: "Ushbu darsda siz matnlarni o‘qish va tushunishni mashq qilasiz.",
+  }
+
+  return descriptions[category] || "Ushbu dars orqali siz bilimlaringizni yanada oshirasiz."
+}
+
+export function LessonInfo({
+  title,
+  lessonNumber,
+  totalLessons,
+  onPrevious,
+  onNext,
+  category
+}: LessonInfoProps) {
   return (
     <div className="mt-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -26,8 +48,7 @@ export function LessonInfo({ title, lessonNumber, totalLessons, onPrevious, onNe
           </h2>
 
           <p className="mt-2 leading-relaxed text-muted-foreground">
-            Ushbu darsda siz har bir belgining to‘g‘ri yozilish tartibi va talaffuzini o‘rganasiz.
-            Eng yaxshi natijaga erishish uchun video bilan birga yozishni mashq qiling.
+            {getDescription(category)}
           </p>
         </div>
 

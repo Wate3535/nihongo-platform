@@ -10,15 +10,30 @@ interface LessonSidebarProps {
   lessons: Lesson[]
   activeId: number
   onSelect: (lesson: Lesson) => void
+  category: string
 }
 
-export function LessonSidebar({ lessons, activeId, onSelect }: LessonSidebarProps) {
+// 🔥 CATEGORY TITLE FUNCTION
+const getCategoryTitle = (category: string) => {
+  const titles: Record<string, string> = {
+    alphabet: "Alifbo kursi",
+    kanji: "Kanji kursi",
+    grammar: "Grammatika kursi",
+    vocabulary: "So‘z boyligi kursi",
+    listening: "Tinglab tushunish kursi",
+    reading: "O‘qib tushunish kursi",
+  }
+
+  return titles[category] || `${category} kursi`
+}
+
+export function LessonSidebar({ lessons, activeId, onSelect, category }: LessonSidebarProps) {
   return (
     <Card className="border border-border bg-card">
 
       <CardHeader className="pb-3">
         <CardTitle className="text-base text-foreground">
-          Hiragana va Katakana kursi
+          {getCategoryTitle(category)}
         </CardTitle>
 
         <p className="text-xs text-muted-foreground">

@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 
+
 const categories = [
   { name: "Alifbo", slug: "alphabet", icon: "📚" },
   { name: "Grammatika", slug: "grammar", icon: "📖" },

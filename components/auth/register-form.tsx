@@ -1,7 +1,6 @@
 "use client"
 
-import React from "react"
-import { useState } from "react"
+import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
@@ -10,10 +9,10 @@ import { Label } from "@/components/ui/label"
 import { Eye, EyeOff } from "lucide-react"
 
 export function RegisterForm() {
-
   const router = useRouter()
 
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -22,27 +21,62 @@ export function RegisterForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setLoading(true)
 
-   const { error } = await supabase.from("users").insert([
-{
-  name: name,
-  email: email,
-  level: level,
-  paid: false,
-  telegram_id: ""
-}
-])
+    // 1. AUTH REGISTER
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    })
+
     if (error) {
-      alert("Xatolik yuz berdi")
       console.log(error)
-    } else {
-      router.push("/tolov")
+
+      if (error.message.includes("User already registered")) {
+        alert("Bu email bilan hisob mavjud. Iltimos, tizimga kiring.")
+        router.push("/login")
+      } else {
+        alert(error.message)
+      }
+
+      setLoading(false)
+      return
     }
+
+    const user = data.user
+
+    if (!user) {
+      alert("User yaratilmadi")
+      setLoading(false)
+      return
+    }
+
+    // 2. USERS TABLE INSERT
+    const { error: dbError } = await supabase.from("users").insert({
+      id: user.id, // 🔥 RLS uchun MUHIM
+      name,
+      email,
+      level,
+      paid: false,
+      telegram_id: "",
+      role: "student",
+    })
+
+    if (dbError) {
+      console.log(dbError)
+      alert("Ma’lumot saqlashda xatolik")
+      setLoading(false)
+      return
+    }
+
+    // SUCCESS
+    router.push("/tolov")
   }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
+      {/* NAME */}
       <div className="flex flex-col gap-2">
         <Label htmlFor="name">Ism va Familiyangiz</Label>
         <Input
@@ -56,6 +90,7 @@ export function RegisterForm() {
         />
       </div>
 
+      {/* EMAIL */}
       <div className="flex flex-col gap-2">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -69,6 +104,7 @@ export function RegisterForm() {
         />
       </div>
 
+      {/* PASSWORD */}
       <div className="flex flex-col gap-2">
         <Label htmlFor="password">Parol</Label>
         <div className="relative">
@@ -77,6 +113,8 @@ export function RegisterForm() {
             type={showPassword ? "text" : "password"}
             placeholder="Parol yarating"
             className="rounded-lg pr-10"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
 
@@ -87,10 +125,10 @@ export function RegisterForm() {
           >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
-
         </div>
       </div>
 
+      {/* LEVEL */}
       <div className="flex flex-col gap-2">
         <Label htmlFor="level">Yapon tili darajasi</Label>
 
@@ -104,15 +142,19 @@ export function RegisterForm() {
           <option value="">Darajangizni tanlang</option>
           <option value="beginner">To‘liq boshlovchi</option>
           <option value="elementary">Boshlang‘ich (N5)</option>
-          <option value="pre-intermediate">Boshlang‘ichdan yuqori (N4)</option>
-          <option value="intermediate">O‘rta daraja (N3)</option>
-          <option value="advanced">Yuqori daraja (N2/N1)</option>
+          <option value="pre-intermediate">N4</option>
+          <option value="intermediate">N3</option>
+          <option value="advanced">N2/N1</option>
         </select>
-
       </div>
 
-      <Button type="submit" className="mt-2 rounded-lg">
-        Hisob Yaratish
+      {/* BUTTON */}
+      <Button
+        type="submit"
+        disabled={loading}
+        className="mt-2 rounded-lg"
+      >
+        {loading ? "Yuklanmoqda..." : "Hisob Yaratish"}
       </Button>
 
     </form>

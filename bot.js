@@ -4,46 +4,41 @@ import { createClient } from "@supabase/supabase-js"
 
 dotenv.config({ path: ".env.local" })
 
-const token = process.env.TELEGRAM_BOT_TOKEN
+const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN)
 
-if (!token) {
-  console.error("❌ TELEGRAM_BOT_TOKEN topilmadi")
-  process.exit(1)
-}
-
+// 🔥 Supabase
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const bot = new Telegraf(token)
-
+// 🔥 Admin
 const ADMIN_ID = 5053672186
 
+// 🔥 vaqtinchalik memory (telegramId → userId)
+const userMap = new Map()
 
-// ===== START =====
+// ================= START =================
 
 bot.start(async (ctx) => {
 
   const telegramId = ctx.from.id
-  const payload = ctx.startPayload
+  const userId = ctx.startPayload // 🔥 ENG MUHIM
+
+  if (!userId) {
+    return ctx.reply("❌ Iltimos saytdan botga kiring")
+  }
 
   try {
 
-    if (payload) {
+    // 🔥 mapping saqlaymiz
+    userMap.set(telegramId, userId)
 
-      const { error } = await supabase
-        .from("users")
-        .update({
-          telegram_id: telegramId
-        })
-        .eq("id", payload)
-
-      if (error) {
-        console.log("Supabase error:", error)
-      }
-
-    }
+    // 🔥 DB ga yozamiz
+    await supabase
+      .from("users")
+      .update({ telegram_id: telegramId })
+      .eq("id", userId)
 
   } catch (err) {
     console.log("DB xatolik:", err)
@@ -52,63 +47,41 @@ bot.start(async (ctx) => {
   ctx.reply(
 `🇯🇵 NihonGo platformasiga xush kelibsiz!
 
-Bu bot orqali siz yapon tili kursiga to'lov qilishingiz mumkin.
-
 💰 Kurs narxi: 200 000 so'm
 
-📸 To'lov qilgandan keyin chekni shu botga yuboring.`,
-
-Markup.keyboard([
-["💰 To'lov yuborish"],
-["🏠 Bosh sahifa"]
-]).resize()
-
-)
-
+📸 To'lov qilib chek yuboring.`,
+    Markup.keyboard([
+      ["💰 To'lov yuborish"]
+    ]).resize()
+  )
 })
 
 
-// ===== HOME =====
-
-bot.hears("🏠 Bosh sahifa", (ctx) => {
-
-  ctx.reply(
-"🏠 Bosh sahifa",
-
-Markup.keyboard([
-["💰 To'lov yuborish"]
-]).resize()
-
-)
-
-})
-
-
-// ===== TO'LOV =====
+// ================= TOLOV =================
 
 bot.hears("💰 To'lov yuborish", (ctx) => {
-
   ctx.reply(
-`💰 Kurs narxi: 200 000 so'm
+`💰 200 000 so'm
 
 💳 5614 6816 2535 2194
 👤 RUSTAMJONOV SODIQJON
 
-📸 To'lov qilgandan keyin chekni screenshot qilib shu yerga yuboring.
-
-Tasdiqlash odatda 10-15 minut ichida amalga oshiriladi.`
+📸 Chekni shu yerga yuboring.`
   )
-
 })
 
 
-// ===== CHEK QABUL QILISH =====
+// ================= CHEK =================
 
 bot.on("photo", async (ctx) => {
 
   const photo = ctx.message.photo.pop().file_id
-  const username = ctx.from.username || ctx.from.first_name
-  const userId = ctx.from.id
+  const telegramId = ctx.from.id
+  const userId = userMap.get(telegramId) // 🔥 ENG MUHIM
+
+  if (!userId) {
+    return ctx.reply("❌ Siz saytdan botga kirmagansiz")
+  }
 
   try {
 
@@ -118,92 +91,89 @@ bot.on("photo", async (ctx) => {
       {
         caption: `💰 Yangi to'lov
 
-👤 User: ${username}
-🆔 Telegram ID: ${userId}`,
+🧠 UserID: ${userId}
+🆔 Telegram: ${telegramId}`,
 
         reply_markup: {
           inline_keyboard: [
             [
-              { text: "✅ Tasdiqlash", callback_data: `approve_${userId}` },
-              { text: "❌ Bekor qilish", callback_data: `reject_${userId}` }
+              { text: "✅ Tasdiqlash", callback_data: `approve_${userId}_${telegramId}` },
+              { text: "❌ Bekor qilish", callback_data: `reject_${telegramId}` }
             ]
           ]
         }
       }
     )
 
-    await ctx.reply("✅ Chek qabul qilindi. Admin tekshiradi.")
+    await ctx.reply("⏳ Chek qabul qilindi, tekshirilmoqda")
 
   } catch (err) {
-
-    console.error("Xatolik:", err)
-
+    console.error(err)
   }
 
 })
 
 
-// ===== TASDIQLASH =====
+// ================= APPROVE =================
 
-bot.action(/approve_(.+)/, async (ctx) => {
+bot.action(/approve_(.+)_(.+)/, async (ctx) => {
 
   const userId = ctx.match[1]
+  const telegramId = ctx.match[2]
 
   try {
 
-    const { error } = await supabase
+    // 🔥 USERS
+    await supabase
       .from("users")
       .update({ paid: true })
-      .eq("telegram_id", userId)
+      .eq("id", userId)
 
-    if (error) {
-      console.log("Supabase update error:", error)
-    }
+    // 🔥 ENROLLMENTS
+    await supabase
+      .from("enrollments")
+      .upsert([
+        {
+          user_id: userId,
+          course_id: 1,
+          status: "approved"
+        }
+      ])
 
     await ctx.telegram.sendMessage(
-      userId,
-      "🎉 Siz kursga muvaffaqiyatli qo‘shildingiz!\n\nSaytga qaytib kursni ko‘rishingiz mumkin."
+      telegramId,
+      "🎉 Siz kursga qo‘shildingiz!\n\nSaytga qaytib davom eting."
     )
 
     await ctx.editMessageReplyMarkup()
-
     await ctx.answerCbQuery("Tasdiqlandi")
 
   } catch (err) {
-
     console.error(err)
-
   }
 
 })
 
 
-// ===== RAD ETISH =====
+// ================= REJECT =================
 
 bot.action(/reject_(.+)/, async (ctx) => {
 
-  const userId = ctx.match[1]
+  const telegramId = ctx.match[1]
 
-  try {
+  await ctx.telegram.sendMessage(
+    telegramId,
+    "❌ To‘lov tasdiqlanmadi"
+  )
 
-    await ctx.telegram.sendMessage(
-      userId,
-      "❌ Chekingiz tasdiqlanmadi.\nIltimos to‘lovni tekshirib qayta yuboring."
-    )
-
-    await ctx.editMessageReplyMarkup()
-
-    await ctx.answerCbQuery("To'lov rad etildi")
-
-  } catch (err) {
-    console.log(err)
-  }
+  await ctx.editMessageReplyMarkup()
+  await ctx.answerCbQuery("Rad etildi")
 
 })
 
 
-// ===== BOTNI ISHGA TUSHIRISH =====
+// ================= RUN =================
 
 bot.launch()
 
-console.log("🚀 Telegram bot ishga tushdi")
+console.log("🚀 Bot ishga tushdi")
