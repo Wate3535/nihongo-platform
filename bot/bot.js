@@ -4,30 +4,47 @@ import { createClient } from "@supabase/supabase-js"
 
 dotenv.config()
 
-// 🔥 BOT
-const bot = new Telegraf(process.env.BOT_TOKEN)
+// ================= ENV =================
+const BOT_TOKEN = process.env.BOT_TOKEN
+const SUPABASE_URL = process.env.SUPABASE_URL
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-// 🔥 SUPABASE
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-)
+if (!BOT_TOKEN) throw new Error("BOT_TOKEN yo‘q")
+if (!SUPABASE_URL) throw new Error("SUPABASE_URL yo‘q")
+if (!SUPABASE_KEY) throw new Error("SUPABASE_SERVICE_ROLE_KEY yo‘q")
 
-// 🔥 ADMIN
+// ================= INIT =================
+const bot = new Telegraf(BOT_TOKEN)
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+// 🔥 ADMIN ID
 const ADMIN_ID = 5053672186
 
 // ================= START =================
-
 bot.start(async (ctx) => {
   const telegramId = ctx.from.id
-  const userId = ctx.startPayload
+  let userId = ctx.startPayload
 
-  if (!userId) {
-    return ctx.reply("❌ Iltimos saytdan botga kiring")
-  }
+  console.log("START PAYLOAD:", userId)
 
   try {
-    // 🔥 DB ga mapping saqlaymiz (userMap o‘rniga)
+    // ❗ AGAR PAYLOAD BO‘LMASA (/start bosilgan)
+    if (!userId) {
+      const { data: existingUser } = await supabase
+        .from("users")
+        .select("id")
+        .eq("telegram_id", telegramId)
+        .single()
+
+      if (!existingUser) {
+        return ctx.reply("❌ Avval saytdan botga kiring 👇")
+      }
+
+      userId = existingUser.id
+    }
+
+    // 🔥 TELEGRAM ID SAQLASH
     await supabase
       .from("users")
       .update({
@@ -35,26 +52,25 @@ bot.start(async (ctx) => {
       })
       .eq("id", userId)
 
-  } catch (err) {
-    console.log("DB xatolik:", err)
-  }
-
-  ctx.reply(
+    ctx.reply(
 `🇯🇵 NihonGo platformasiga xush kelibsiz!
 
 💰 Kurs narxi: 200 000 so'm
 
 📸 To'lov qilib chek yuboring.`,
-    Markup.keyboard([["💰 To'lov yuborish"]]).resize()
-  )
+      Markup.keyboard([["💰 To'lov yuborish"]]).resize()
+    )
+
+  } catch (err) {
+    console.error("START ERROR:", err)
+    ctx.reply("❌ Xatolik yuz berdi")
+  }
 })
 
-
-// ================= TOLOV =================
-
+// ================= TO‘LOV =================
 bot.hears("💰 To'lov yuborish", (ctx) => {
   ctx.reply(
-`💰 200 000 so'm
+`💰 499 000 so'm
 
 💳 5614 6816 2535 2194
 👤 RUSTAMJONOV SODIQJON
@@ -63,17 +79,12 @@ bot.hears("💰 To'lov yuborish", (ctx) => {
   )
 })
 
-
 // ================= CHEK =================
-
 bot.on("photo", async (ctx) => {
-
   const photo = ctx.message.photo.pop().file_id
   const telegramId = ctx.from.id
 
   try {
-
-    // 🔥 DB dan userni topamiz (ENDI userMap yo‘q)
     const { data: user, error } = await supabase
       .from("users")
       .select("id")
@@ -94,7 +105,6 @@ bot.on("photo", async (ctx) => {
 
 🧠 UserID: ${userId}
 🆔 Telegram: ${telegramId}`,
-
         reply_markup: {
           inline_keyboard: [
             [
@@ -109,28 +119,23 @@ bot.on("photo", async (ctx) => {
     await ctx.reply("⏳ Chek qabul qilindi, tekshirilmoqda")
 
   } catch (err) {
-    console.error(err)
+    console.error("PHOTO ERROR:", err)
   }
-
 })
 
-
 // ================= APPROVE =================
-
 bot.action(/approve_(.+)_(.+)/, async (ctx) => {
-
   const userId = ctx.match[1]
   const telegramId = ctx.match[2]
 
   try {
-
-    // 🔥 USERS
+    // USERS
     await supabase
       .from("users")
       .update({ paid: true })
       .eq("id", userId)
 
-    // 🔥 ENROLLMENTS
+    // ENROLLMENTS
     await supabase
       .from("enrollments")
       .upsert([
@@ -150,16 +155,12 @@ bot.action(/approve_(.+)_(.+)/, async (ctx) => {
     await ctx.answerCbQuery("Tasdiqlandi")
 
   } catch (err) {
-    console.error(err)
+    console.error("APPROVE ERROR:", err)
   }
-
 })
 
-
 // ================= REJECT =================
-
 bot.action(/reject_(.+)/, async (ctx) => {
-
   const telegramId = ctx.match[1]
 
   await ctx.telegram.sendMessage(
@@ -169,16 +170,12 @@ bot.action(/reject_(.+)/, async (ctx) => {
 
   await ctx.editMessageReplyMarkup()
   await ctx.answerCbQuery("Rad etildi")
-
 })
 
-
 // ================= RUN =================
-
 bot.launch()
+console.log("🚀 Bot Railway’da ishlayapti")
 
-console.log("🚀 Bot Railway’da ishga tushdi")
-
-// 🔥 SHUTDOWN FIX (MUHIM)
+// ================= SHUTDOWN =================
 process.once("SIGINT", () => bot.stop("SIGINT"))
 process.once("SIGTERM", () => bot.stop("SIGTERM"))
