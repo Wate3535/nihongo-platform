@@ -51,7 +51,6 @@ export default function RegisterPage() {
             Interaktiv platformamiz orqali yapon tilini o‘zlashtirayotgan o‘quvchilarga qo‘shiling
           </p>
 
-          {/* JAPANESE TEXT */}
           <div className="
             mt-12 text-7xl font-bold
             japanese-animated
@@ -70,7 +69,7 @@ export default function RegisterPage() {
           
           <div className="mb-8">
             <Link href="/" className="text-2xl font-bold text-primary hover:opacity-80 transition">
-              NihonGo
+              NihonGoo
             </Link>
 
             <h1 className="mt-6 text-2xl font-bold text-foreground">

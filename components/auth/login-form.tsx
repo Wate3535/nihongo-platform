@@ -45,48 +45,74 @@ function LoginFormInner() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form
+      onSubmit={handleSubmit}
+      className="
+        flex flex-col gap-5
+        p-6 rounded-2xl
+        shadow-lg
+        transition-all duration-300
+        hover:shadow-2xl hover:scale-[1.02]
+        animate-fade-in-up
+      "
+    >
 
+      {/* ERROR */}
       {error && (
-        <div className="text-red-500 text-sm">{error}</div>
+        <div className="text-red-500 text-sm animate-shake">
+          {error}
+        </div>
       )}
 
+      {/* EMAIL */}
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email</Label>
+        <Label>Email</Label>
         <Input
-          id="email"
           type="email"
           placeholder="you@example.com"
-          className="rounded-lg"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          className="
+            transition-all duration-200
+            focus:scale-[1.03]
+            focus:ring-2 focus:ring-blue-400
+          "
         />
       </div>
 
+      {/* PASSWORD */}
       <div className="flex flex-col gap-2">
-        <Label htmlFor="password">Parol</Label>
+        <Label>Parol</Label>
 
         <div className="relative">
           <Input
-            id="password"
             type={showPassword ? "text" : "password"}
             placeholder="Enter your password"
-            className="rounded-lg pr-10"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className="
+              pr-10
+              transition-all duration-200
+              focus:scale-[1.03]
+              focus:ring-2 focus:ring-blue-400
+            "
           />
 
           <button
             type="button"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="
+              absolute right-3 top-1/2 -translate-y-1/2
+              transition-transform duration-200
+              hover:scale-110
+            "
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? (
-              <EyeOff className="h-4 w-4" />
+              <EyeOff size={16} />
             ) : (
-              <Eye className="h-4 w-4" />
+              <Eye size={16} />
             )}
           </button>
         </div>
@@ -95,15 +121,29 @@ function LoginFormInner() {
           <button
             type="button"
             onClick={() => router.push("/forgot-password")}
-            className="text-sm text-blue-500 hover:underline"
+            className="
+              text-sm text-blue-500
+              transition-all duration-200
+              hover:underline hover:scale-105
+            "
           >
             Parolni unutdingizmi?
           </button>
         </div>
-
       </div>
 
-      <Button type="submit" className="mt-2 rounded-lg" disabled={loading}>
+     
+      <Button
+        type="submit"
+        disabled={loading}
+        className="
+          mt-2 rounded-lg
+          bg-gradient-to-r from-blue-500 to-indigo-500
+          text-white
+          transition-all duration-300
+          hover:scale-105 hover:shadow-lg hover:from-blue-600 hover:to-indigo-600
+        "
+      >
         {loading ? "Kuting..." : "Log In"}
       </Button>
 

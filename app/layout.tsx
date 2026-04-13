@@ -24,7 +24,6 @@ export const metadata: Metadata = {
     "yapon tili kursi",
   ],
 
-  // 🔥 GOOGLE VERIFY (ENG MUHIM QO‘SHILDI)
   verification: {
     google: "4bWAn0H5LIlWIxqMOx6bD7kEk2-eAJ_S3u716k8eeaw",
   },

@@ -2,42 +2,37 @@ import dotenv from "dotenv"
 import { Telegraf, Markup } from "telegraf"
 import { createClient } from "@supabase/supabase-js"
 
-dotenv.config({ path: ".env.local" })
+dotenv.config()
 
-const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN)
+// 🔥 BOT
+const bot = new Telegraf(process.env.BOT_TOKEN)
 
-// 🔥 Supabase
+// 🔥 SUPABASE
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-// 🔥 Admin
+// 🔥 ADMIN
 const ADMIN_ID = 5053672186
-
-// 🔥 vaqtinchalik memory (telegramId → userId)
-const userMap = new Map()
 
 // ================= START =================
 
 bot.start(async (ctx) => {
-
   const telegramId = ctx.from.id
-  const userId = ctx.startPayload // 🔥 ENG MUHIM
+  const userId = ctx.startPayload
 
   if (!userId) {
     return ctx.reply("❌ Iltimos saytdan botga kiring")
   }
 
   try {
-
-    // 🔥 mapping saqlaymiz
-    userMap.set(telegramId, userId)
-
-    // 🔥 DB ga yozamiz
+    // 🔥 DB ga mapping saqlaymiz (userMap o‘rniga)
     await supabase
       .from("users")
-      .update({ telegram_id: telegramId })
+      .update({
+        telegram_id: telegramId
+      })
       .eq("id", userId)
 
   } catch (err) {
@@ -50,9 +45,7 @@ bot.start(async (ctx) => {
 💰 Kurs narxi: 200 000 so'm
 
 📸 To'lov qilib chek yuboring.`,
-    Markup.keyboard([
-      ["💰 To'lov yuborish"]
-    ]).resize()
+    Markup.keyboard([["💰 To'lov yuborish"]]).resize()
   )
 })
 
@@ -77,13 +70,21 @@ bot.on("photo", async (ctx) => {
 
   const photo = ctx.message.photo.pop().file_id
   const telegramId = ctx.from.id
-  const userId = userMap.get(telegramId) // 🔥 ENG MUHIM
-
-  if (!userId) {
-    return ctx.reply("❌ Siz saytdan botga kirmagansiz")
-  }
 
   try {
+
+    // 🔥 DB dan userni topamiz (ENDI userMap yo‘q)
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("id")
+      .eq("telegram_id", telegramId)
+      .single()
+
+    if (error || !user) {
+      return ctx.reply("❌ Siz saytdan botga kirmagansiz")
+    }
+
+    const userId = user.id
 
     await ctx.telegram.sendPhoto(
       ADMIN_ID,
@@ -176,4 +177,8 @@ bot.action(/reject_(.+)/, async (ctx) => {
 
 bot.launch()
 
-console.log("🚀 Bot ishga tushdi")
+console.log("🚀 Bot Railway’da ishga tushdi")
+
+// 🔥 SHUTDOWN FIX (MUHIM)
+process.once("SIGINT", () => bot.stop("SIGINT"))
+process.once("SIGTERM", () => bot.stop("SIGTERM"))

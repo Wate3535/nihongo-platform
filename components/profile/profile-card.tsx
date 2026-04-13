@@ -1,25 +1,23 @@
 "use client"
 
 import { useRef, useState, useEffect } from "react"
+import Link from "next/link"
+import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Calendar, BookOpen } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 
 export function ProfileCard({ user }: { user: any }) {
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [avatar, setAvatar] = useState(user?.avatar_url)
-
-  // ⏰ REAL TIME
   const [now, setNow] = useState(new Date())
 
   useEffect(() => {
     const interval = setInterval(() => {
       setNow(new Date())
     }, 1000)
-
     return () => clearInterval(interval)
   }, [])
 
@@ -34,14 +32,9 @@ export function ProfileCard({ user }: { user: any }) {
     const fileExt = file.name.split('.').pop()
     const fileName = `${user.id}.${fileExt}`
 
-    const { error } = await supabase.storage
+    await supabase.storage
       .from('avatars')
       .upload(fileName, file, { upsert: true })
-
-    if (error) {
-      console.error("UPLOAD ERROR:", error)
-      return
-    }
 
     const { data } = supabase.storage
       .from('avatars')
@@ -57,34 +50,32 @@ export function ProfileCard({ user }: { user: any }) {
     setAvatar(publicUrl)
   }
 
-  const months = [
-    "yanvar",
-    "fevral",
-    "mart",
-    "aprel",
-    "may",
-    "iyun",
-    "iyul",
-    "avgust",
-    "sentyabr",
-    "oktyabr",
-    "noyabr",
-    "dekabr",
-  ]
+  const months = ["yanvar","fevral","mart","aprel","may","iyun","iyul","avgust","sentyabr","oktyabr","noyabr","dekabr"]
   const formattedToday = `${now.getFullYear()}-yil ${now.getDate()}-${months[now.getMonth()]}`
 
   return (
-    <Card className="border border-border bg-card">
-      <CardContent className="flex flex-col items-center p-6 text-center">
+    <Card className="max-w-md mx-auto rounded-3xl border shadow-xl 
+      bg-white text-gray-900 
+      dark:bg-zinc-900 dark:text-white 
+      transition-all duration-300">
+
+      <CardContent className="flex flex-col items-center p-8 text-center">
 
         {/* Avatar */}
-        <div onClick={handleClick} className="cursor-pointer">
-          <Avatar className="h-24 w-24">
-            <AvatarImage src={avatar} />
-            <AvatarFallback className="bg-primary/10 text-2xl font-bold text-primary">
+        <div onClick={handleClick} className="cursor-pointer relative group">
+          <Avatar className="h-28 w-28 rounded-full overflow-hidden">
+            <AvatarImage 
+              src={avatar || "/default-avatar.png"} 
+              className="object-cover w-full h-full"
+            />
+            <AvatarFallback className="text-3xl font-bold">
               {user?.name?.[0] || "U"}
             </AvatarFallback>
           </Avatar>
+
+          <div className="absolute bottom-0 right-0 bg-blue-600 text-white p-1 rounded-full text-xs">
+            📷
+          </div>
         </div>
 
         <input
@@ -96,53 +87,65 @@ export function ProfileCard({ user }: { user: any }) {
         />
 
         {/* Name */}
-        <h2 className="mt-4 text-xl font-bold text-foreground">
+        <h2 className="mt-5 text-2xl font-bold hover:text-blue-600 transition">
           {user?.name}
         </h2>
 
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           {user?.email}
         </p>
 
         {/* Badges */}
         <div className="mt-3 flex gap-2">
-          <Badge variant="secondary" className="rounded-full">
+          <Badge className="rounded-full px-3 py-1 text-sm">
             {user?.level}
           </Badge>
 
-          <Badge
-            variant="secondary"
-            className="rounded-full bg-primary/10 text-primary"
-          >
+          <Badge className="rounded-full bg-blue-100 text-blue-600 px-3 py-1 text-sm">
             Faol o‘quvchi
           </Badge>
         </div>
 
+        {/* Edit */}
+        <Link href="/profile/edit" className="w-full">
+          <button className="mt-5 w-full py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:scale-105 transition">
+            Edit Profile ✏️
+          </button>
+        </Link>
+
         {/* INFO */}
-        <div className="mt-6 w-full space-y-3 text-left">
+        <div className="mt-6 w-full space-y-4 text-left">
 
-          {/* LOCATION */}
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4" />
-            <span>{user?.location || "Manzil kiritilmagan"}</span>
+          {/* Location */}
+          <div className="flex items-center gap-3 group cursor-pointer">
+            <Image src="/map.png" width={20} height={20} alt="" className="group-hover:scale-125 transition" />
+            <span className="text-gray-600 dark:text-gray-300 group-hover:text-blue-600 transition">
+              {user?.location || "Manzil kiritilmagan"}
+            </span>
           </div>
 
-          {/* DATE */}
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <Calendar className="h-4 w-4" />
-            <span>{formattedToday}</span>
+          {/* Date */}
+          <div className="flex items-center gap-3 group cursor-pointer">
+            <Image src="/calendar.png" width={20} height={20} alt="" className="group-hover:scale-125 transition" />
+            <span className="text-gray-600 dark:text-gray-300 group-hover:text-blue-600 transition">
+              {formattedToday}
+            </span>
           </div>
 
-          {/* TIME */}
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <span>⏰</span>
-            <span>{now.toLocaleTimeString("uz-UZ")}</span>
+          {/* Time */}
+          <div className="flex items-center gap-3 group cursor-pointer">
+            <Image src="/soat.png" width={20} height={20} alt="" className="group-hover:scale-125 transition" />
+            <span className="text-gray-600 dark:text-gray-300 group-hover:text-blue-600 transition">
+              {now.toLocaleTimeString("uz-UZ")}
+            </span>
           </div>
 
-          {/* PROGRESS */}
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <BookOpen className="h-4 w-4" />
-            <span>0 ta dars tugatilgan</span>
+          {/* Lessons */}
+          <div className="flex items-center gap-3 group cursor-pointer">
+            <Image src="/dars.png" width={20} height={20} alt="" className="group-hover:scale-125 transition" />
+            <span className="text-gray-600 dark:text-gray-300 group-hover:text-blue-600 transition">
+              0 ta dars tugatilgan
+            </span>
           </div>
 
         </div>

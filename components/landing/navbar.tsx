@@ -5,45 +5,60 @@ import { useState } from "react"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { useRouter } from "next/navigation"
+import { supabase } from "@/lib/supabase"
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const router = useRouter()
 
   const links = [
     { href: "#features", label: "Imkoniyatlar" },
-    { href: "/reviews", label: "O‘quvchilar fikrlari" }, 
+    { href: "/reviews", label: "O‘quvchilar fikrlari" },
     { href: "/login", label: "Kirish" },
   ]
+  async function handleStart() {
+    setLoading(true)
+
+    const { data } = await supabase.auth.getUser()
+    const user = data.user
+
+    if (!user) {
+      router.push("/register")
+      return
+    }
+
+    if (!user.email_confirmed_at) {
+      alert("Emailingizni tasdiqlang 📩")
+      setLoading(false)
+      return
+    }
+
+    router.push("/dashboard")
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/70 backdrop-blur-xl">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
 
         {/* LOGO */}
-        <Link href="/" className="group flex items-center gap-3 cursor-pointer">
+        <Link href="/" className="flex items-center gap-3 cursor-pointer group">
+          <div className="relative w-11 h-11 flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 shadow-xl group-hover:scale-105 transition">
+            <div className="absolute w-6 h-6 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 opacity-70 blur-[3px]" />
 
-          <div className="relative w-10 h-10 flex items-center justify-center">
-
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-indigo-500 via-blue-500 to-purple-600 shadow-lg transition group-hover:scale-105" />
-
-            <div className="absolute inset-0 rounded-xl bg-indigo-500 opacity-20 blur-xl group-hover:opacity-40 transition" />
-
-            <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5 z-10">
-              <path d="M4 5c0-1.1.9-2 2-2h10a2 2 0 012 2v14a1 1 0 01-1.447.894L12 17.382l-4.553 2.512A1 1 0 016 19V5z" />
+            <svg viewBox="0 0 24 24" className="w-6 h-6 z-10">
+              <rect x="3" y="6" width="18" height="2" rx="1" fill="white"/>
+              <rect x="5" y="9" width="14" height="2" rx="1" fill="white"/>
+              <rect x="6" y="11" width="2" height="7" rx="1" fill="white"/>
+              <rect x="16" y="11" width="2" height="7" rx="1" fill="white"/>
             </svg>
-
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-pink-400 rounded-full animate-pulse" />
           </div>
 
-          <span className="
-            text-2xl font-bold tracking-tight
-            bg-gradient-to-r from-indigo-500 via-blue-500 to-purple-500
-            bg-clip-text text-transparent
-            transition-transform duration-300 group-hover:scale-105
-          ">
+          <span className="text-xl font-semibold bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 bg-clip-text text-transparent">
             NihonGoo
           </span>
-
         </Link>
 
         {/* DESKTOP */}
@@ -53,44 +68,37 @@ export function Navbar() {
             <Link
               key={item.label}
               href={item.href}
-              className="group relative text-sm font-medium text-muted-foreground transition-colors duration-300 hover:text-primary"
+              className="group relative text-sm font-medium text-muted-foreground hover:text-primary"
             >
               {item.label}
-
-              <span className="
-                absolute left-0 -bottom-1 h-[2px] w-0 
-                bg-primary
-                transition-all duration-300
-                group-hover:w-full
-              " />
+              <span className="absolute left-0 -bottom-1 h-[2px] w-0 bg-primary group-hover:w-full transition-all"/>
             </Link>
           ))}
 
           <ThemeToggle />
 
-          <Button
-            asChild
+          
+          <button
+            onClick={handleStart}
+            disabled={loading}
             className="
-              rounded-full px-6
+              rounded-full px-6 py-2
               bg-gradient-to-r from-indigo-500 to-blue-500
               text-white shadow-md
               hover:scale-105 hover:shadow-lg
               transition-all duration-300
+              disabled:opacity-50
             "
           >
-            <Link href="/register">Boshlash</Link>
-          </Button>
+            {loading ? "Tekshirilmoqda..." : "Boshlash"}
+          </button>
 
         </div>
 
         {/* MOBILE */}
         <div className="flex items-center gap-2 md:hidden">
           <ThemeToggle />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setMobileOpen(!mobileOpen)}
-          >
+          <Button variant="ghost" size="icon" onClick={() => setMobileOpen(!mobileOpen)}>
             {mobileOpen ? <X /> : <Menu />}
           </Button>
         </div>
@@ -107,15 +115,19 @@ export function Navbar() {
                 key={item.label}
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition"
+                className="text-sm font-medium text-muted-foreground hover:text-primary"
               >
                 {item.label}
               </Link>
             ))}
 
-            <Button asChild className="rounded-full">
-              <Link href="/register">Boshlash</Link>
-            </Button>
+            {/* 🔥 MOBILE SMART BUTTON */}
+            <button
+              onClick={handleStart}
+              className="rounded-full bg-primary text-white py-2"
+            >
+              Boshlash
+            </button>
 
           </div>
         </div>
