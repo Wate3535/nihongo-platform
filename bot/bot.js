@@ -24,7 +24,7 @@ bot.start(async (ctx) => {
   console.log("TELEGRAM ID:", telegramId)
 
   try {
-    // 🔥 1. Agar link orqali kirsa
+    // 🔥 1. Agar link orqali kirsa → DB update
     if (userId) {
       await supabase
         .from("users")
@@ -32,22 +32,18 @@ bot.start(async (ctx) => {
         .eq("id", userId)
     }
 
-    // 🔥 2. Agar oddiy /start bo‘lsa
-    if (!userId) {
-      const { data: existingUser } = await supabase
-        .from("users")
-        .select("id")
-        .eq("telegram_id", telegramId)
-        .single()
+    // 🔥 2. Agar oddiy /start bo‘lsa → DB dan topamiz
+    const { data: existingUser } = await supabase
+      .from("users")
+      .select("id")
+      .eq("telegram_id", telegramId)
+      .maybeSingle()
 
-      if (!existingUser) {
-        return ctx.reply("❌ Avval saytdan botga kiring 👇")
-      }
-
-      userId = existingUser.id
+    // 🔥 Agar umuman topilmasa → baribir ishlashga ruxsat beramiz
+    if (!existingUser && !userId) {
+      console.log("USER NOT LINKED BUT CONTINUE")
     }
 
-    // 🔥 OK → user ishlashi mumkin
     ctx.reply(
 `🇯🇵 NihonGo platformasiga xush kelibsiz!
 
@@ -62,7 +58,6 @@ bot.start(async (ctx) => {
     ctx.reply("❌ Xatolik yuz berdi")
   }
 })
-
 // ================= TO‘LOV =================
 bot.hears("💰 To'lov yuborish", (ctx) => {
   ctx.reply(
@@ -81,17 +76,13 @@ bot.on("photo", async (ctx) => {
   const telegramId = ctx.from.id
 
   try {
-    const { data: user, error } = await supabase
+    const { data: user } = await supabase
       .from("users")
       .select("id")
       .eq("telegram_id", telegramId)
-      .single()
+      .maybeSingle()
 
-    if (error || !user) {
-      return ctx.reply("❌ Siz saytdan botga kirmagansiz")
-    }
-
-    const userId = user.id
+    let userId = user?.id || "UNKNOWN"
 
     await ctx.telegram.sendPhoto(
       ADMIN_ID,
