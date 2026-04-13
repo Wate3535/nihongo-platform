@@ -2,21 +2,15 @@ import dotenv from "dotenv"
 import { Telegraf, Markup } from "telegraf"
 import { createClient } from "@supabase/supabase-js"
 
-dotenv.config()
+// 🔥 ENV
+dotenv.config({ path: "../.env.local" })
 
-// ================= ENV =================
-const BOT_TOKEN = process.env.BOT_TOKEN
-const SUPABASE_URL = process.env.SUPABASE_URL
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+const bot = new Telegraf(process.env.BOT_TOKEN)
 
-if (!BOT_TOKEN) throw new Error("BOT_TOKEN yo‘q")
-if (!SUPABASE_URL) throw new Error("SUPABASE_URL yo‘q")
-if (!SUPABASE_KEY) throw new Error("SUPABASE_SERVICE_ROLE_KEY yo‘q")
-
-// ================= INIT =================
-const bot = new Telegraf(BOT_TOKEN)
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+)
 
 // 🔥 ADMIN ID
 const ADMIN_ID = 5053672186
@@ -27,9 +21,18 @@ bot.start(async (ctx) => {
   let userId = ctx.startPayload
 
   console.log("START PAYLOAD:", userId)
+  console.log("TELEGRAM ID:", telegramId)
 
   try {
-    // ❗ AGAR PAYLOAD BO‘LMASA (/start bosilgan)
+    // 🔥 1. Agar link orqali kirsa
+    if (userId) {
+      await supabase
+        .from("users")
+        .update({ telegram_id: telegramId })
+        .eq("id", userId)
+    }
+
+    // 🔥 2. Agar oddiy /start bo‘lsa
     if (!userId) {
       const { data: existingUser } = await supabase
         .from("users")
@@ -44,14 +47,7 @@ bot.start(async (ctx) => {
       userId = existingUser.id
     }
 
-    // 🔥 TELEGRAM ID SAQLASH
-    await supabase
-      .from("users")
-      .update({
-        telegram_id: telegramId
-      })
-      .eq("id", userId)
-
+    // 🔥 OK → user ishlashi mumkin
     ctx.reply(
 `🇯🇵 NihonGo platformasiga xush kelibsiz!
 
@@ -70,7 +66,7 @@ bot.start(async (ctx) => {
 // ================= TO‘LOV =================
 bot.hears("💰 To'lov yuborish", (ctx) => {
   ctx.reply(
-`💰 499 000 so'm
+`💰 200 000 so'm
 
 💳 5614 6816 2535 2194
 👤 RUSTAMJONOV SODIQJON
@@ -129,13 +125,11 @@ bot.action(/approve_(.+)_(.+)/, async (ctx) => {
   const telegramId = ctx.match[2]
 
   try {
-    // USERS
     await supabase
       .from("users")
       .update({ paid: true })
       .eq("id", userId)
 
-    // ENROLLMENTS
     await supabase
       .from("enrollments")
       .upsert([
@@ -176,6 +170,5 @@ bot.action(/reject_(.+)/, async (ctx) => {
 bot.launch()
 console.log("🚀 Bot Railway’da ishlayapti")
 
-// ================= SHUTDOWN =================
 process.once("SIGINT", () => bot.stop("SIGINT"))
 process.once("SIGTERM", () => bot.stop("SIGTERM"))
