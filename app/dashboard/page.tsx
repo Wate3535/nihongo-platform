@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase"
 import { ProgressCards } from "@/components/dashboard/progress-cards"
 import { ContinueLearning } from "@/components/dashboard/continue-learning"
 import { RecentLessons } from "@/components/dashboard/recent-lessons"
+import { motion } from "framer-motion"
 
 export default function DashboardPage() {
 
@@ -61,36 +62,117 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
+  {/* 🔥 HEADER */}
+<div className="mb-10">
 
-      {/* 🔥 HEADER + TIMER */}
-      <div className="mb-8 flex items-start justify-between">
+  <div className="relative flex flex-col items-start">
 
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            Xush kelibsiz
-          </h1>
+    {/* XUSH KELIBSIZ */}
+    <motion.h1
+      initial={{
+        opacity: 0,
+        y: 18,
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      whileHover={{
+        scale: 1.05,
+      }}
+      transition={{
+        duration: 0.22,
+      }}
+      className="inline-block cursor-pointer text-4xl font-extrabold tracking-tight text-foreground hover:text-primary"
+    >
+      Xush kelibsiz
+    </motion.h1>
 
-          <p className="mt-1 text-muted-foreground">
-            Bu hafta o‘qish jarayoningiz
-          </p>
-        </div>
+    {/* SUBTITLE */}
+    <motion.p
+      initial={{
+        opacity: 0,
+        y: 10,
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      whileHover={{
+        scale: 1.02,
+      }}
+      transition={{
+        duration: 0.22,
+        delay: 0.08,
+      }}
+      className="mt-8 inline-block cursor-pointer rounded-full border border-transparent px-5 py-2.5 text-lg font-medium text-muted-foreground hover:border-primary hover:bg-primary/5 hover:text-foreground"
+    >
+      Bu hafta o‘qish jarayoningiz
+    </motion.p>
 
-      </div>
+  </div>
 
-      <ProgressCards />
+</div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-5">
+{/* TOP CARDLAR */}
+<motion.div
+  initial={{
+    opacity: 0,
+    y: 20,
+  }}
+  animate={{
+    opacity: 1,
+    y: 0,
+  }}
+  transition={{
+    duration: 0.45,
+    delay: 0.1,
+  }}
+>
+  <ProgressCards />
+</motion.div>
 
-        <div className="lg:col-span-3">
-          <ContinueLearning />
-        </div>
+{/* PASTKI QISM */}
+<div className="mt-8 grid gap-8 lg:grid-cols-5">
 
-        <div className="lg:col-span-2">
-          <RecentLessons />
-        </div>
+  <motion.div
+    className="lg:col-span-3"
+    initial={{
+      opacity: 0,
+      x: -20,
+    }}
+    animate={{
+      opacity: 1,
+      x: 0,
+    }}
+    transition={{
+      duration: 0.45,
+      delay: 0.18,
+    }}
+  >
+    <ContinueLearning />
+  </motion.div>
 
-      </div>
+  <motion.div
+    className="lg:col-span-2"
+    initial={{
+      opacity: 0,
+      x: 20,
+    }}
+    animate={{
+      opacity: 1,
+      x: 0,
+    }}
+    transition={{
+      duration: 0.45,
+      delay: 0.22,
+    }}
+  >
+    <RecentLessons />
+  </motion.div>
 
-    </div>
-  )
+</div>
+
+</div>
+)
 }

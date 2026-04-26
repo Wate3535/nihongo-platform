@@ -5,132 +5,152 @@ import { useEffect, useState } from "react"
 
 export function CertificateSection() {
   const fullText = "Sertifikat qo‘lga kiriting"
+
   const [text, setText] = useState("")
   const [index, setIndex] = useState(0)
 
-  // 🔥 typing loop
   useEffect(() => {
-    const interval = setInterval(() => {
+    const timer = setInterval(() => {
       setText(fullText.slice(0, index))
-      setIndex((prev) => (prev > fullText.length + 10 ? 0 : prev + 1))
-    }, 50)
+      setIndex((prev) =>
+        prev >= fullText.length ? 0 : prev + 1
+      )
+    }, 120)
 
-    return () => clearInterval(interval)
+    return () => clearInterval(timer)
   }, [index])
 
   return (
-    <div className="
-      relative w-full min-h-screen
-      flex items-center justify-center
-      overflow-hidden
-      bg-gradient-to-br from-yellow-50 via-white to-orange-100
-      dark:from-[#020617] dark:via-[#020617] dark:to-[#020617]
-    ">
+    <section
+      className="
+      relative overflow-hidden
+      min-h-screen
+      bg-gradient-to-br
+      from-yellow-50 via-white to-orange-100
+      dark:from-[#020617]
+      dark:via-[#0f172a]
+      dark:to-[#111827]
+    "
+    >
+      {/* Glow */}
+      <div className="absolute -left-24 -top-24 h-80 w-80 rounded-full bg-yellow-300/20 blur-3xl" />
+      <div className="absolute -right-24 -bottom-24 h-80 w-80 rounded-full bg-orange-300/20 blur-3xl" />
 
-      {/* 🔥 GLOW */}
-      <div className="absolute w-[500px] h-[500px] bg-yellow-400/20 blur-3xl rounded-full top-[-100px] left-[-100px]" />
-      <div className="absolute w-[400px] h-[400px] bg-orange-400/20 blur-3xl rounded-full bottom-[-100px] right-[-100px]" />
+      {/* Desktop Images */}
+      <div className="hidden lg:block">
 
-      {/* 🔥 FLOATING CERTIFICATES (desktop only) */}
-      <div className="absolute inset-0 pointer-events-none hidden md:block">
+        {/* Top Left */}
+        <CornerImage
+          src="/SERTIFIKAT1.jpg"
+          className="top-6 left-16 h-[320px] w-[380px] rotate-[-2deg]"
+        />
 
-        <CertificateCard src="/SERTIFIKAT1.jpg" className="left-[8%] top-[15%]" type="float" />
-        <CertificateCard src="/SERTIFIKAT2.jpg" className="right-[8%] top-[20%]" type="rotate" />
-        <CertificateCard src="/SERTIFIKAT3.jpg" className="bottom-[12%] left-[20%]" type="pulse" />
-        <CertificateCard src="/SERTIFIKAT4.jpg" className="bottom-[10%] right-[8%]" type="wave" />
+        {/* Top Right */}
+        <CornerImage
+          src="/SERTIFIKAT2.jpg"
+          className="top-6 right-16 h-[320px] w-[380px] rotate-[2deg]"
+        />
 
+        {/* Bottom Left */}
+        <CornerImage
+          src="/SERTIFIKAT3.jpg"
+          className="bottom-6 left-20 h-[330px] w-[390px] rotate-[1deg]"
+        />
+
+        {/* Bottom Right */}
+        <CornerImage
+          src="/SERTIFIKAT4.jpg"
+          className="bottom-6 right-20 h-[330px] w-[390px] rotate-[-1deg]"
+        />
       </div>
 
-      {/* CONTENT */}
-      <div className="relative z-10 text-center max-w-3xl px-4 md:px-6">
+      {/* Center Content */}
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-4 text-center sm:px-6 lg:px-8">
 
-        {/* TITLE */}
-        <h1 className="
-          text-3xl md:text-5xl lg:text-6xl
-          font-bold
-          transition-all duration-500
-          hover:scale-110
-        ">
-          <span className="bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
-            {text}
-          </span>
-          <span className="animate-pulse">|</span>
-        </h1>
-
-        {/* TEXT */}
-        <p className="
-          mt-6 text-base md:text-lg
-          text-gray-600 dark:text-gray-300
-          transition-all duration-500
-          hover:text-yellow-600 dark:hover:text-yellow-400
-          hover:scale-105 hover:font-semibold
-        ">
-          Kurslarni yakunlab, rasmiy sertifikat qo‘lga kiriting va bilimlaringizni tasdiqlang.
-        </p>
-
-        <p className="
-          mt-4 text-sm md:text-md
-          text-gray-500 dark:text-gray-400
-          transition-all duration-500
-          hover:text-orange-600 dark:hover:text-orange-400
-          hover:scale-105 hover:italic
-        ">
-          Bu sizning mehnatingiz natijasi — faxrlanishga arziydi 🏆
-        </p>
-
-        {/* 📱 MOBILE IMAGE */}
-        <div className="mt-8 md:hidden">
-          <img
-            src="/SERTIFIKAT1.jpg"
-            className="rounded-2xl shadow-xl w-full"
-          />
+        <div className="mb-5 rounded-full border border-yellow-300 bg-white/80 px-5 py-2 text-sm font-semibold text-yellow-700 shadow-md backdrop-blur">
+          🏆 Rag‘batlantirish!
         </div>
 
+        <h1 className="min-h-[90px] text-4xl font-extrabold sm:text-5xl lg:text-6xl">
+          <span className="bg-gradient-to-r from-yellow-500 via-orange-500 to-amber-500 bg-clip-text text-transparent">
+            {text}
+          </span>
+          <span className="ml-1 animate-pulse text-slate-400">
+            |
+          </span>
+        </h1>
+
+        <p className="mt-4 max-w-3xl text-base leading-8 text-slate-600 dark:text-slate-300 sm:text-lg">
+          Kurslarni yakunlab, rasmiy sertifikat qo‘lga kiriting va
+          bilimlaringizni ishonch bilan tasdiqlang.
+        </p>
+
+        {/* Cards */}
+        <div className="mt-8 grid w-full max-w-2xl grid-cols-2 gap-4 sm:grid-cols-4">
+          <InfoCard value="100%" label="Tasdiq" />
+          <InfoCard value="PDF" label="Format" />
+          <InfoCard value="Share" label="Ulashish" />
+          <InfoCard value="Pro" label="Portfolio" />
+        </div>
+
+        <p className="mt-6 text-sm text-slate-500 dark:text-slate-400">
+          Mehnatingiz natijasi — faxrlanishga arziydi 🏆
+        </p>
       </div>
+
+      {/* Mobile */}
+      <div className="px-4 pb-10 lg:hidden">
+        <div className="relative mx-auto mt-8 h-64 w-full max-w-sm overflow-hidden rounded-3xl shadow-2xl">
+          <Image
+            src="/SERTIFIKAT1.jpg"
+            alt="Certificate"
+            fill
+            className="object-cover"
+          />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* Image */
+function CornerImage({
+  src,
+  className,
+}: {
+  src: string
+  className: string
+}) {
+  return (
+    <div
+      className={`absolute z-0 overflow-hidden rounded-2xl shadow-2xl transition duration-500 hover:scale-105 ${className}`}
+    >
+      <Image
+        src={src}
+        alt=""
+        fill
+        className="object-cover"
+      />
     </div>
   )
 }
 
-/* 🎓 CERTIFICATE CARD */
-
-function CertificateCard({ src, className, type }: any) {
-  const animation =
-    type === "float"
-      ? "animate-float-slow"
-      : type === "rotate"
-      ? "animate-rotate-slow"
-      : type === "pulse"
-      ? "animate-pulse-slow"
-      : "animate-wave"
-
+/* Card */
+function InfoCard({
+  value,
+  label,
+}: {
+  value: string
+  label: string
+}) {
   return (
-    <div
-      className={`
-        absolute
-        w-44 h-32 md:w-96 md:h-64
-        ${className}
-        ${animation}
-      `}
-    >
-      <div className="relative w-full h-full group">
-
-        <div className="
-          absolute inset-0
-          bg-gradient-to-r from-transparent via-white/40 to-transparent
-          opacity-0 group-hover:opacity-100
-          animate-shine pointer-events-none
-        " />
-
-        <div className="
-          w-full h-full rounded-2xl overflow-hidden
-          shadow-2xl border border-white/20
-          transition-all duration-500
-          group-hover:scale-110 group-hover:-translate-y-4
-        ">
-          <Image src={src} alt="" fill className="object-cover" />
-        </div>
-
-      </div>
+    <div className="rounded-2xl border border-white/30 bg-white/85 p-4 shadow-xl backdrop-blur-xl transition duration-500 hover:-translate-y-1 hover:scale-[1.03]">
+      <p className="text-xl font-bold text-yellow-600 md:text-2xl">
+        {value}
+      </p>
+      <p className="mt-1 text-xs text-slate-600 md:text-sm">
+        {label}
+      </p>
     </div>
   )
 }

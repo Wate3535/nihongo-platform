@@ -2,24 +2,60 @@
 
 import { useRef, useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { supabase } from "@/lib/supabase"
+import { LogOut } from "lucide-react"
 
 export function ProfileCard({ user }: { user: any }) {
-
+  const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
+
   const [avatar, setAvatar] = useState(user?.avatar_url)
   const [now, setNow] = useState(new Date())
+  const [tangalar, setTangalar] = useState(0)
+  const [completedLessons, setCompletedLessons] = useState(0)
 
   useEffect(() => {
     const interval = setInterval(() => {
       setNow(new Date())
     }, 1000)
-    return () => clearInterval(interval)
+
+    fetchProfileStats()
+
+    const refreshStats = () => {
+      fetchProfileStats()
+    }
+
+    window.addEventListener("coinsUpdated", refreshStats)
+
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener("coinsUpdated", refreshStats)
+    }
   }, [])
+
+  async function fetchProfileStats() {
+    const { data } = await supabase
+      .from("profiles")
+      .select("id, coins, completed_lessons")
+      .eq("id", user.id)
+
+    if (data && data.length > 0) {
+      setTangalar(data[0].coins || 0)
+      setCompletedLessons(data[0].completed_lessons || 0)
+    } else {
+      setTangalar(0)
+      setCompletedLessons(0)
+    }
+  }
 
   const handleClick = () => {
     fileInputRef.current?.click()
@@ -29,45 +65,66 @@ export function ProfileCard({ user }: { user: any }) {
     const file = e.target.files[0]
     if (!file) return
 
-    const fileExt = file.name.split('.').pop()
+    const fileExt = file.name.split(".").pop()
     const fileName = `${user.id}.${fileExt}`
 
     await supabase.storage
-      .from('avatars')
+      .from("avatars")
       .upload(fileName, file, { upsert: true })
 
     const { data } = supabase.storage
-      .from('avatars')
+      .from("avatars")
       .getPublicUrl(fileName)
 
     const publicUrl = data.publicUrl
 
     await supabase
-      .from('users')
+      .from("users")
       .update({ avatar_url: publicUrl })
-      .eq('id', user.id)
+      .eq("id", user.id)
 
     setAvatar(publicUrl)
   }
 
-  const months = ["yanvar","fevral","mart","aprel","may","iyun","iyul","avgust","sentyabr","oktyabr","noyabr","dekabr"]
-  const formattedToday = `${now.getFullYear()}-yil ${now.getDate()}-${months[now.getMonth()]}`
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push("/login")
+  }
+
+  const months = [
+    "yanvar",
+    "fevral",
+    "mart",
+    "aprel",
+    "may",
+    "iyun",
+    "iyul",
+    "avgust",
+    "sentyabr",
+    "oktyabr",
+    "noyabr",
+    "dekabr",
+  ]
+
+  const formattedToday = `${now.getFullYear()}-yil ${now.getDate()}-${
+    months[now.getMonth()]
+  }`
 
   return (
-    <Card className="max-w-md mx-auto rounded-3xl border shadow-xl 
-      bg-white text-gray-900 
-      dark:bg-zinc-900 dark:text-white 
-      transition-all duration-300">
-
+    <Card className="max-w-md mx-auto rounded-3xl border shadow-xl bg-white text-gray-900 dark:bg-zinc-900 dark:text-white transition-all duration-300">
       <CardContent className="flex flex-col items-center p-8 text-center">
 
         {/* Avatar */}
-        <div onClick={handleClick} className="cursor-pointer relative group">
+        <div
+          onClick={handleClick}
+          className="cursor-pointer relative group"
+        >
           <Avatar className="h-28 w-28 rounded-full overflow-hidden">
-            <AvatarImage 
-              src={avatar || "/default-avatar.png"} 
+            <AvatarImage
+              src={avatar || "/default-avatar.png"}
               className="object-cover w-full h-full"
             />
+
             <AvatarFallback className="text-3xl font-bold">
               {user?.name?.[0] || "U"}
             </AvatarFallback>
@@ -87,7 +144,7 @@ export function ProfileCard({ user }: { user: any }) {
         />
 
         {/* Name */}
-        <h2 className="mt-5 text-2xl font-bold hover:text-blue-600 transition">
+        <h2 className="mt-5 text-2xl font-bold">
           {user?.name}
         </h2>
 
@@ -106,49 +163,88 @@ export function ProfileCard({ user }: { user: any }) {
           </Badge>
         </div>
 
+        {/* Tangalar */}
+        <div className="mt-5 w-full rounded-2xl bg-yellow-500/10 border border-yellow-400/30 px-4 py-3 flex items-center justify-center gap-2">
+          <span className="text-xl">🪙</span>
+
+          <span className="text-xl font-bold text-yellow-500">
+            {tangalar} Tangalar
+          </span>
+        </div>
+
         {/* Edit */}
         <Link href="/profile/edit" className="w-full">
-          <button className="mt-5 w-full py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:scale-105 transition">
+          <button className="mt-4 w-full py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:scale-105 transition">
             Edit Profile ✏️
           </button>
         </Link>
 
-        {/* INFO */}
+        {/* Info */}
         <div className="mt-6 w-full space-y-4 text-left">
 
-          {/* Location */}
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <Image src="/map.png" width={20} height={20} alt="" className="group-hover:scale-125 transition" />
-            <span className="text-gray-600 dark:text-gray-300 group-hover:text-blue-600 transition">
+          <div className="flex items-center gap-3">
+            <Image
+              src="/map.png"
+              width={20}
+              height={20}
+              alt=""
+            />
+            <span>
               {user?.location || "Manzil kiritilmagan"}
             </span>
           </div>
 
-          {/* Date */}
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <Image src="/calendar.png" width={20} height={20} alt="" className="group-hover:scale-125 transition" />
-            <span className="text-gray-600 dark:text-gray-300 group-hover:text-blue-600 transition">
-              {formattedToday}
-            </span>
+          <div className="flex items-center gap-3">
+            <Image
+              src="/calendar.png"
+              width={20}
+              height={20}
+              alt=""
+            />
+            <span>{formattedToday}</span>
           </div>
 
-          {/* Time */}
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <Image src="/soat.png" width={20} height={20} alt="" className="group-hover:scale-125 transition" />
-            <span className="text-gray-600 dark:text-gray-300 group-hover:text-blue-600 transition">
+          <div className="flex items-center gap-3">
+            <Image
+              src="/soat.png"
+              width={20}
+              height={20}
+              alt=""
+            />
+            <span>
               {now.toLocaleTimeString("uz-UZ")}
             </span>
           </div>
 
-          {/* Lessons */}
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <Image src="/dars.png" width={20} height={20} alt="" className="group-hover:scale-125 transition" />
-            <span className="text-gray-600 dark:text-gray-300 group-hover:text-blue-600 transition">
-              0 ta dars tugatilgan
+          <div className="flex items-center gap-3">
+            <Image
+              src="/dars.png"
+              width={20}
+              height={20}
+              alt=""
+            />
+            <span>
+              {completedLessons} ta dars tugatilgan
             </span>
           </div>
-
         </div>
+
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          className="
+            mt-6 w-full py-2
+            bg-red-600 text-white
+            rounded-xl
+            hover:bg-red-700 hover:scale-105
+            transition
+          "
+        >
+          <span className="flex items-center justify-center gap-2">
+            <LogOut size={18} />
+            Chiqish
+          </span>
+        </button>
 
       </CardContent>
     </Card>

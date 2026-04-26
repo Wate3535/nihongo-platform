@@ -5,118 +5,144 @@ import { useEffect, useState } from "react"
 
 export function AiSection() {
   const fullText = "AI bilan gapirib o‘rganing"
+
   const [text, setText] = useState("")
   const [index, setIndex] = useState(0)
 
-  // 🔥 LOOP TYPING EFFECT
   useEffect(() => {
-    const interval = setInterval(() => {
+    const timer = setInterval(() => {
       setText(fullText.slice(0, index))
-      setIndex((prev) => (prev > fullText.length + 10 ? 0 : prev + 1))
-    }, 60)
+      setIndex((prev) =>
+        prev >= fullText.length ? 0 : prev + 1
+      )
+    }, 120)
 
-    return () => clearInterval(interval)
+    return () => clearInterval(timer)
   }, [index])
 
   return (
-    <div className="
-      relative w-full min-h-screen
-      flex items-center justify-center
-      overflow-hidden
-      bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-100
-      dark:from-[#020617] dark:via-[#020617] dark:to-[#020617]
-    ">
+    <section className="relative overflow-hidden min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-100">
 
-      {/* 🔥 FLOATING IMAGES (faqat desktop) */}
-      <div className="absolute inset-0 pointer-events-none hidden md:block">
-        <FloatingImage src="/AI1.jpg" className="top-[8%] left-[6%]" type="fast" />
-        <FloatingImage src="/AI2.jpg" className="top-[12%] right-[8%]" type="slow" />
-        <FloatingImage src="/AI3.jpg" className="bottom-[10%] left-[10%]" type="reverse" />
-        <FloatingImage src="/AI4.jpg" className="bottom-[8%] right-[6%]" type="slow" />
+      {/* Desktop */}
+      <div className="hidden lg:block">
+
+        <CornerImage
+          src="/AI1.jpg"
+          className="top-6 left-16 h-[320px] w-[380px]"
+        />
+        <CornerImage
+          src="/AI2.jpg"
+          className="top-6 right-16 h-[320px] w-[380px]"
+        />
+        <CornerImage
+          src="/AI3.jpg"
+          className="bottom-6 left-20 h-[330px] w-[390px]"
+        />
+        <CornerImage
+          src="/AI4.jpg"
+          className="bottom-6 right-20 h-[330px] w-[390px]"
+        />
+
       </div>
 
-      {/* CONTENT */}
-      <div className="relative z-10 text-center max-w-3xl px-4 md:px-6">
+      {/* Mobile */}
+      <div className="mx-auto flex min-h-screen max-w-md flex-col items-center px-4 py-10 text-center lg:hidden">
 
-        {/* TITLE */}
-        <h1 className="
-          text-3xl md:text-5xl lg:text-6xl
-          font-bold leading-tight
-          transition-all duration-500
-          hover:scale-110 hover:tracking-wide
-        ">
-          <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+        <div className="mb-4 rounded-full border border-indigo-300 bg-white px-5 py-2 text-sm font-semibold text-indigo-700 shadow">
+          🤖 Smart AI Teacher
+        </div>
+
+        <h1 className="text-4xl font-extrabold leading-tight">
+          <span className="bg-gradient-to-r from-indigo-600 via-blue-500 to-purple-600 bg-clip-text text-transparent">
             {text}
           </span>
-          <span className="animate-pulse">|</span>
+          <span className="animate-pulse text-slate-400">|</span>
         </h1>
 
-        {/* TEXT 1 */}
-        <p className="
-          mt-6 text-base md:text-lg
-          text-gray-600 dark:text-gray-300
-          transition-all duration-500
-          hover:text-indigo-600 dark:hover:text-indigo-400
-          hover:scale-105 hover:font-semibold
-        ">
-          AI siz bilan real suhbat qiladi va xatolaringizni darhol to‘g‘rilaydi.
-          Siz gapirasiz — AI tushunadi va sizni rivojlantiradi.
+        <p className="mt-5 text-lg leading-9 text-slate-600">
+          AI siz bilan real suhbat qiladi va xatolaringizni darhol
+          to‘g‘rilaydi. Siz gapirasiz — AI tushunadi va rivojlantiradi.
         </p>
 
-        {/* TEXT 2 */}
-        <p className="
-          mt-4 text-sm md:text-md
-          text-gray-500 dark:text-gray-400
-          transition-all duration-500
-          hover:text-purple-600 dark:hover:text-purple-400
-          hover:scale-105 hover:italic
-        ">
-          24/7 mashq qiling, real dialoglar orqali gapirishni o‘rganing 🚀
-        </p>
-
-        {/* MOBILE IMAGE */}
-        <div className="mt-8 md:hidden">
-          <img
+        {/* ✅ IMAGE HERE */}
+        <div className="relative mt-8 h-56 w-full overflow-hidden rounded-3xl shadow-2xl">
+          <Image
             src="/AI1.jpg"
-            className="rounded-2xl shadow-xl w-full"
+            alt="AI"
+            fill
+            className="object-cover"
           />
         </div>
 
-        
+        {/* Cards */}
+        <div className="mt-8 grid w-full grid-cols-2 gap-4">
+          <InfoCard value="24/7" label="Online" />
+          <InfoCard value="Voice" label="Suhbat" />
+          <InfoCard value="Fast" label="Javob" />
+          <InfoCard value="Smart" label="Tahlil" />
+        </div>
+
+        <p className="mt-6 text-sm text-slate-500">
+          Real dialoglar orqali gapirishni o‘rganing 🚀
+        </p>
+      </div>
+
+      {/* Desktop Center */}
+      <div className="relative z-10 mx-auto hidden min-h-screen max-w-5xl flex-col items-center justify-center px-4 text-center lg:flex">
+
+        <div className="mb-5 rounded-full border border-indigo-300 bg-white px-5 py-2 text-sm font-semibold text-indigo-700 shadow">
+          🤖 Smart AI Teacher
+        </div>
+
+        <h1 className="text-6xl font-extrabold">
+          <span className="bg-gradient-to-r from-indigo-600 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+            {text}
+          </span>
+          <span className="animate-pulse text-slate-400">|</span>
+        </h1>
+
+        <p className="mt-5 max-w-3xl text-lg leading-9 text-slate-600">
+          AI siz bilan real suhbat qiladi va xatolaringizni darhol
+          to‘g‘rilaydi. Siz gapirasiz — AI tushunadi va rivojlantiradi.
+        </p>
+
+        <div className="mt-8 grid w-full max-w-2xl grid-cols-4 gap-4">
+          <InfoCard value="24/7" label="Online" />
+          <InfoCard value="Voice" label="Suhbat" />
+          <InfoCard value="Fast" label="Javob" />
+          <InfoCard value="Smart" label="Tahlil" />
+        </div>
 
       </div>
+    </section>
+  )
+}
+
+function CornerImage({
+  src,
+  className,
+}: {
+  src: string
+  className: string
+}) {
+  return (
+    <div className={`absolute hidden overflow-hidden rounded-2xl shadow-2xl lg:block ${className}`}>
+      <Image src={src} alt="" fill className="object-cover" />
     </div>
   )
 }
 
-/* FLOATING IMAGE */
-function FloatingImage({ src, className, type }: any) {
-  const animationClass =
-    type === "fast"
-      ? "animate-float-fast"
-      : type === "slow"
-      ? "animate-float-slow"
-      : "animate-float-reverse"
-
+function InfoCard({
+  value,
+  label,
+}: {
+  value: string
+  label: string
+}) {
   return (
-    <div
-      className={`
-        absolute
-        w-40 h-40 md:w-80 md:h-80
-        ${className}
-        ${animationClass}
-      `}
-    >
-      <div className="relative w-full h-full group">
-        <div className="
-          w-full h-full rounded-3xl overflow-hidden
-          shadow-2xl
-          transition-all duration-500
-          group-hover:scale-110 group-hover:-translate-y-4
-        ">
-          <Image src={src} alt="" fill className="object-cover" />
-        </div>
-      </div>
+    <div className="rounded-2xl bg-white p-5 shadow-xl">
+      <p className="text-2xl font-bold text-indigo-600">{value}</p>
+      <p className="mt-1 text-sm text-slate-600">{label}</p>
     </div>
   )
 }

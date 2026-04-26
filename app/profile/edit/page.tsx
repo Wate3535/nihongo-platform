@@ -136,7 +136,7 @@ export default function EditProfilePage() {
         {/* Location */}
         <div className="mb-5">
           <label className="block mb-1 font-medium text-gray-700">
-            Location 📍
+            Manzil 📍
           </label>
           <input
             value={location}

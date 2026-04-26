@@ -1,117 +1,151 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+"use client"
+
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Award, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
-type CertificateStatus = "earned" | "in-progress" | "locked"
-
-type Certificate = {
-  title: string
-  date: string
-  status: CertificateStatus
-  file?: string
-}
-
-const certificates: Certificate[] = [
-  {
-    title: "Hiragana va Katakana kursi sertifikati",
-    date: "2025-yil Dekabr",
-    status: "earned",
-    file: "/certificates/alifbo_sertifikat.png",
-  },
-  {
-    title: "N5 daraja kursi sertifikati",
-    date: "2026-yil Yanvar",
-    status: "earned",
-    file: "/certificates/N5_sertifikat.png",
-  },
-  {
-    title: "N5 Grammatika asoslari",
-    date: "Jarayonda",
-    status: "in-progress",
-  },
-  {
-    title: "N4 Sertifikat tayyorlov",
-    date: "Yopiq",
-    status: "locked",
-  },
-]
+import {
+  Award,
+  Download,
+  Lock,
+} from "lucide-react"
+import { motion } from "framer-motion"
 
 export function Certificates() {
+  const [unlocked, setUnlocked] =
+    useState(false)
+
+  const [percent, setPercent] =
+    useState(0)
+
+  useEffect(() => {
+    checkCertificate()
+  }, [])
+
+  async function checkCertificate() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) return
+
+    const { count: totalLessons } =
+      await supabase
+        .from("lessons")
+        .select("*", {
+          count: "exact",
+          head: true,
+        })
+
+    const { count: completedLessons } =
+      await supabase
+        .from("progress")
+        .select("*", {
+          count: "exact",
+          head: true,
+        })
+        .eq("user_id", user.id)
+        .eq("completed", true)
+
+    const total =
+      totalLessons || 0
+
+    const completed =
+      completedLessons || 0
+
+    const progress =
+      total > 0
+        ? Math.round(
+            (completed / total) *
+              100
+          )
+        : 0
+
+    setPercent(progress)
+
+    if (progress >= 100) {
+      setUnlocked(true)
+    }
+  }
+
   return (
-    <Card className="border border-border bg-card">
+    <Card className="border border-border bg-card rounded-2xl shadow-sm">
       <CardHeader>
-        <CardTitle className="text-lg text-foreground">
-          Sertifikatlar
+        <CardTitle className="text-lg font-bold text-foreground">
+          Sertifikat
         </CardTitle>
 
         <p className="text-sm text-muted-foreground">
-          O‘qish jarayonida qo‘lga kiritgan yutuqlaringiz
+          Barcha kurslarni 100%
+          tugatib sertifikatni
+          qo‘lga kiriting
         </p>
       </CardHeader>
 
-      <CardContent className="flex flex-col gap-4">
-
-        {certificates.map((cert) => (
+      <CardContent>
+        <motion.div
+          whileHover={{
+            scale: 1.02,
+          }}
+          transition={{
+            duration: 0.25,
+          }}
+          className={`flex items-center gap-4 rounded-2xl border p-4 ${
+            unlocked
+              ? "border-green-500 bg-green-500/5"
+              : "border-border bg-muted/30"
+          }`}
+        >
           <div
-            key={cert.title}
-            className="flex items-center gap-4 rounded-xl border border-border bg-background p-4"
+            className={`flex h-12 w-12 items-center justify-center rounded-2xl ${
+              unlocked
+                ? "bg-green-500/10 text-green-600"
+                : "bg-secondary text-muted-foreground"
+            }`}
           >
-
-            <div
-              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
-                cert.status === "earned"
-                  ? "bg-primary/10 text-primary"
-                  : cert.status === "in-progress"
-                  ? "bg-chart-4/10 text-chart-4"
-                  : "bg-secondary text-muted-foreground"
-              }`}
-            >
+            {unlocked ? (
               <Award className="h-5 w-5" />
-            </div>
-
-            <div className="flex-1">
-              <p className="font-medium text-foreground">
-                {cert.title}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {cert.date}
-              </p>
-            </div>
-
-            {cert.status === "earned" && cert.file ? (
-
-              <a href={cert.file} download>
-
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="shrink-0"
-                  aria-label="Sertifikatni yuklab olish"
-                >
-                  <Download className="h-4 w-4" />
-                </Button>
-
-              </a>
-
             ) : (
-
-              <Badge
-                variant="secondary"
-                className={`shrink-0 rounded-full ${
-                  cert.status === "in-progress"
-                    ? "bg-chart-4/10 text-chart-4"
-                    : ""
-                }`}
-              >
-                {cert.status === "in-progress" ? "Jarayonda" : "Yopiq"}
-              </Badge>
-
+              <Lock className="h-5 w-5" />
             )}
-
           </div>
-        ))}
 
+          <div className="flex-1">
+            <p className="font-semibold text-foreground">
+              NihonGoo Master
+              Sertifikati
+            </p>
+
+            <p className="text-xs text-muted-foreground mt-1">
+              Progress: {percent}%
+            </p>
+          </div>
+
+          {unlocked ? (
+            <a
+              href="/certificates/N5_sertifikat.png"
+              download
+            >
+              <Button className="rounded-xl">
+                <Download className="mr-2 h-4 w-4" />
+                Yuklab olish
+              </Button>
+            </a>
+          ) : (
+            <Badge
+              variant="secondary"
+              className="rounded-full px-3 py-1"
+            >
+              Qulflangan
+            </Badge>
+          )}
+        </motion.div>
       </CardContent>
     </Card>
   )

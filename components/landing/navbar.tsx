@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { useState } from "react"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -19,6 +20,7 @@ export function Navbar() {
     { href: "/reviews", label: "O‘quvchilar fikrlari" },
     { href: "/login", label: "Kirish" },
   ]
+
   async function handleStart() {
     setLoading(true)
 
@@ -40,74 +42,128 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-card/70 backdrop-blur-xl">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+    <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 md:px-6 py-4">
 
-        {/* LOGO */}
-        <Link href="/" className="flex items-center gap-3 cursor-pointer group">
-          <div className="relative w-11 h-11 flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 shadow-xl group-hover:scale-105 transition">
-            <div className="absolute w-6 h-6 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 opacity-70 blur-[3px]" />
+        {/* LEFT BRAND */}
+        <Link href="/" className="group flex items-center gap-4 md:gap-5 min-w-0">
 
-            <svg viewBox="0 0 24 24" className="w-6 h-6 z-10">
-              <rect x="3" y="6" width="18" height="2" rx="1" fill="white"/>
-              <rect x="5" y="9" width="14" height="2" rx="1" fill="white"/>
-              <rect x="6" y="11" width="2" height="7" rx="1" fill="white"/>
-              <rect x="16" y="11" width="2" height="7" rx="1" fill="white"/>
-            </svg>
+          {/* LOGO */}
+          <div
+            className="
+              relative rounded-2xl p-1 shrink-0
+              will-change-transform transform-gpu
+              transition-all duration-500 ease-out
+              group-hover:scale-110
+              active:scale-110
+
+              group-hover:brightness-110
+              group-hover:contrast-110
+              group-hover:saturate-125
+
+              group-hover:shadow-[0_0_18px_rgba(255,255,255,0.65),0_0_38px_rgba(99,102,241,0.55),0_0_70px_rgba(99,102,241,0.35)]
+              dark:group-hover:shadow-[0_0_20px_rgba(255,255,255,0.35),0_0_42px_rgba(168,85,247,0.65),0_0_80px_rgba(59,130,246,0.35)]
+
+              active:shadow-[0_0_18px_rgba(255,255,255,0.65),0_0_38px_rgba(99,102,241,0.55),0_0_70px_rgba(99,102,241,0.35)]
+              dark:active:shadow-[0_0_20px_rgba(255,255,255,0.35),0_0_42px_rgba(168,85,247,0.65),0_0_80px_rgba(59,130,246,0.35)]
+            "
+          >
+            <Image
+              src="/LOGO-MODE.svg"
+              alt="NihonGoo"
+              width={72}
+              height={72}
+              priority
+              className="block dark:hidden object-contain select-none transition-all duration-500"
+            />
+
+            <Image
+              src="/LOGO-DARK.svg"
+              alt="NihonGoo"
+              width={72}
+              height={72}
+              priority
+              className="hidden dark:block object-contain select-none transition-all duration-500"
+            />
           </div>
 
-          <span className="text-xl font-semibold bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-500 bg-clip-text text-transparent">
-            NihonGoo
-          </span>
+          {/* TEXT */}
+          <div
+            className="
+              hidden sm:block leading-tight pr-6 md:pr-10
+              transition-all duration-300
+              group-hover:scale-105
+              group-hover:translate-x-1
+            "
+          >
+            <h1 className="text-xl md:text-3xl font-bold tracking-tight text-slate-800 dark:text-white">
+              NihonGoo
+            </h1>
+
+            <p className="text-xs md:text-sm text-slate-500 dark:text-slate-300">
+              Yapon tilini oson o‘rganing
+            </p>
+          </div>
         </Link>
 
-        {/* DESKTOP */}
-        <div className="hidden items-center gap-8 md:flex">
+        {/* RIGHT DESKTOP */}
+        <div className="hidden md:flex items-center gap-8">
 
           {links.map((item) => (
             <Link
               key={item.label}
               href={item.href}
-              className="group relative text-sm font-medium text-muted-foreground hover:text-primary"
+              className="
+                group relative
+                text-base font-semibold
+                text-slate-700
+                hover:text-primary
+                dark:text-slate-200
+                dark:hover:text-white
+                transition-colors duration-300
+              "
             >
               {item.label}
-              <span className="absolute left-0 -bottom-1 h-[2px] w-0 bg-primary group-hover:w-full transition-all"/>
+              <span className="absolute left-0 -bottom-1 h-[2px] w-0 bg-primary transition-all duration-300 group-hover:w-full" />
             </Link>
           ))}
 
           <ThemeToggle />
 
-          
           <button
             onClick={handleStart}
             disabled={loading}
             className="
-              rounded-full px-6 py-2
+              rounded-full px-7 py-2.5
+              text-base font-semibold text-white
               bg-gradient-to-r from-indigo-500 to-blue-500
-              text-white shadow-md
-              hover:scale-105 hover:shadow-lg
+              shadow-md
+              hover:scale-105 hover:shadow-xl
               transition-all duration-300
               disabled:opacity-50
             "
           >
             {loading ? "Tekshirilmoqda..." : "Boshlash"}
           </button>
-
         </div>
 
         {/* MOBILE */}
         <div className="flex items-center gap-2 md:hidden">
           <ThemeToggle />
-          <Button variant="ghost" size="icon" onClick={() => setMobileOpen(!mobileOpen)}>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
             {mobileOpen ? <X /> : <Menu />}
           </Button>
         </div>
-
       </nav>
 
       {/* MOBILE MENU */}
       {mobileOpen && (
-        <div className="border-t border-border bg-card px-6 py-4 md:hidden">
+        <div className="border-t border-border bg-card px-4 py-4 md:hidden">
           <div className="flex flex-col gap-4">
 
             {links.map((item) => (
@@ -115,20 +171,26 @@ export function Navbar() {
                 key={item.label}
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
-                className="text-sm font-medium text-muted-foreground hover:text-primary"
+                className="
+                  text-base font-semibold
+                  text-slate-700
+                  dark:text-slate-200
+                "
               >
                 {item.label}
               </Link>
             ))}
 
-            {/* 🔥 MOBILE SMART BUTTON */}
             <button
               onClick={handleStart}
-              className="rounded-full bg-primary text-white py-2"
+              className="
+                rounded-full py-2.5
+                text-white font-semibold
+                bg-gradient-to-r from-indigo-500 to-blue-500
+              "
             >
-              Boshlash
+              {loading ? "Tekshirilmoqda..." : "Boshlash"}
             </button>
-
           </div>
         </div>
       )}

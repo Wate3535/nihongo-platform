@@ -1,251 +1,217 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { supabase } from "@/lib/supabase"
 
-type Profile = {
-  full_name: string
-  avatar_url?: string
-}
+export default function N5Leaderboard() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
 
-type Message = {
-  id: string
-  text: string
-  user_id: string
-  created_at: string
-  reply_to?: string
-  profiles?: Profile
-}
+  const students = [
+    { name: "Kamola", score: 98, lessons: 42 },
+    { name: "Madina", score: 96, lessons: 40 },
+    { name: "Azizbek", score: 94, lessons: 39 },
+    { name: "Shahzoda", score: 92, lessons: 37 },
+    { name: "Kamron", score: 90, lessons: 35 },
+    { name: "Dilnoza", score: 89, lessons: 34 },
+    { name: "Oybek", score: 87, lessons: 32 },
+    { name: "Jasmina", score: 86, lessons: 31 },
+    { name: "Abror", score: 84, lessons: 30 },
+    { name: "Sarvinoz", score: 82, lessons: 28 },
+  ]
 
-export function Chat() {
-  const [messages, setMessages] = useState<Message[]>([])
-  const [text, setText] = useState("")
-  const [userId, setUserId] = useState<string | null>(null)
-  const [replyTo, setReplyTo] = useState<Message | null>(null)
-  const [typingUsers, setTypingUsers] = useState<string[]>([])
-  const [showScrollBtn, setShowScrollBtn] = useState(false)
+  async function handleJoin() {
+    setLoading(true)
 
-  const scrollRef = useRef<HTMLDivElement>(null)
+    try {
+      const { data } = await supabase.auth.getUser()
+      const user = data.user
 
-  // 🔥 USER
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUserId(data.user?.id || null)
-    })
-  }, [])
+      // User yo‘q bo‘lsa -> Register
+      if (!user) {
+        router.push("/register")
+        return
+      }
 
-  // 🔥 FETCH (PROFILES BILAN)
-  async function fetchMessages() {
-    const { data } = await supabase
-      .from("messages")
-      .select(`
-        *,
-        profiles(full_name, avatar_url)
-      `)
-      .order("created_at", { ascending: true })
+      // Email confirm bo‘lmagan bo‘lsa
+      if (!user.email_confirmed_at) {
+        alert("Emailingizni tasdiqlang 📩")
+        return
+      }
 
-    if (data) {
-      const mapped = data.map((m: any) => ({
-        ...m,
-        profiles: m.profiles?.[0],
-      }))
-      setMessages(mapped)
+      // Login user -> Dashboard
+      router.push("/dashboard")
+    } catch (error) {
+      console.error(error)
+      router.push("/register")
+    } finally {
+      setLoading(false)
     }
-  }
-
-  // 🔥 REALTIME (OPTIMIZED)
-  useEffect(() => {
-    fetchMessages()
-
-    const channel = supabase
-      .channel("chat")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages" },
-        (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message])
-        }
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [])
-
-  // 🔥 SEND
-  async function sendMessage() {
-    if (!text.trim()) return
-
-    const { data } = await supabase.auth.getUser()
-    if (!data.user) return
-
-    await supabase.from("messages").insert({
-      text,
-      user_id: data.user.id,
-      reply_to: replyTo?.id || null,
-    })
-
-    setText("")
-    setReplyTo(null)
-  }
-
-  // 🔥 SCROLL BUTTON
-  function handleScroll(e: any) {
-    const top = e.target.scrollTop
-    setShowScrollBtn(top < 200)
-  }
-
-  function scrollToBottom() {
-    scrollRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex justify-center">
+    <section className="min-h-screen bg-[#020617] text-white px-6 py-10 md:py-14">
+      <div className="max-w-6xl mx-auto">
 
-      <div className="w-full max-w-7xl flex h-[80vh] rounded-xl overflow-hidden shadow-lg">
+        {/* TOP BAR */}
+        <div className="flex items-center justify-between mb-12">
+          <div className="flex items-center gap-4 mt-4">
+            <Image
+              src="/jamoa.png"
+              alt="Jamoa"
+              width={44}
+              height={44}
+              className="rounded-xl object-cover"
+            />
 
-        {/* SIDEBAR */}
-        <div className="w-72 bg-white border-r p-4 hidden md:block">
-          <input
-            placeholder="Search..."
-            className="w-full mb-4 px-3 py-2 rounded-lg bg-gray-100"
-          />
-
-          <div className="p-3 rounded-xl bg-indigo-100">
-            <p className="font-semibold">Platforma guruhi</p>
-            <p className="text-xs text-gray-500">
-              {messages[messages.length - 1]?.text || "No messages"}
-            </p>
+            <h1 className="text-3xl md:text-5xl font-bold mt-1">
+              Hamjamiyat
+            </h1>
           </div>
+
+          <button
+            onClick={() => router.back()}
+            className="
+              px-6 py-3 rounded-full
+              bg-white/5 border border-white/10
+              hover:bg-white/10 hover:scale-105
+              transition-all duration-300
+            "
+          >
+            ← Orqaga qaytish
+          </button>
         </div>
 
-        {/* CHAT */}
-        <div className="flex-1 flex flex-col bg-[url('/chat-bg.png')] bg-cover">
+        {/* TITLE */}
+        <div className="text-center mb-14">
+          <h2 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+            🏆 N5 Top O'quvchilar
+          </h2>
 
-          {/* HEADER */}
-          <div className="backdrop-blur-md bg-white/70 border-b px-6 py-3">
-            <h2 className="font-semibold">Platforma guruhi</h2>
-          </div>
+          <p className="text-white/60 mt-4 text-lg">
+            Eng faol o‘quvchilar reytingi
+          </p>
+        </div>
 
-          {/* MESSAGES */}
-          <div
-            onScroll={handleScroll}
-            className="flex-1 overflow-y-auto p-6 space-y-2"
-          >
-            {messages.map((msg, i) => {
-              const isMe = msg.user_id === userId
-              const prev = messages[i - 1]
-              const showAvatar = prev?.user_id !== msg.user_id
+        {/* TOP 3 */}
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
+          {students.slice(0, 3).map((student, i) => (
+            <div
+              key={student.name}
+              className={`
+                rounded-3xl p-6 text-center border border-white/10
+                backdrop-blur-xl shadow-2xl cursor-pointer
+                transition-all duration-500
+                hover:scale-110 hover:-translate-y-2
+                ${
+                  i === 0
+                    ? "bg-gradient-to-b from-yellow-400/20 to-transparent scale-105"
+                    : i === 1
+                    ? "bg-gradient-to-b from-gray-300/10 to-transparent"
+                    : "bg-gradient-to-b from-orange-500/10 to-transparent"
+                }
+              `}
+            >
+              <div className="text-6xl mb-4">
+                {i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉"}
+              </div>
 
-              const replyMsg = messages.find(m => m.id === msg.reply_to)
+              <div className="w-20 h-20 mx-auto rounded-full bg-white/10 flex items-center justify-center text-2xl font-bold mb-4">
+                {student.name[0]}
+              </div>
 
-              return (
-                <div
-                  key={msg.id}
-                  className={`flex ${isMe ? "justify-end" : "justify-start"}`}
-                >
-                  <div className="max-w-[70%] flex gap-2">
+              <h3 className="text-2xl font-bold">{student.name}</h3>
 
-                    {/* AVATAR */}
-                    {!isMe && showAvatar && (
-                      <img
-                        src={msg.profiles?.avatar_url || "/avatar.png"}
-                        className="w-8 h-8 rounded-full"
-                      />
-                    )}
+              <p className="text-white/60 mt-2">N5 Student</p>
 
-                    <div
-                      onClick={() => setReplyTo(msg)}
-                      className={`
-                        px-4 py-2 rounded-2xl text-sm shadow cursor-pointer
-                        ${
-                          isMe
-                            ? "bg-gradient-to-r from-indigo-500 to-blue-500 text-white"
-                            : "bg-white"
-                        }
-                      `}
-                    >
-                      {!isMe && showAvatar && (
-                        <div className="text-xs font-semibold mb-1">
-                          {msg.profiles?.full_name || "User"}
-                        </div>
-                      )}
+              <div className="mt-4 text-lg font-semibold text-green-400">
+                {student.score}%
+              </div>
 
-                      {replyMsg && (
-                        <div className="text-xs bg-black/10 p-1 rounded mb-1">
-                          ↪ {replyMsg.text}
-                        </div>
-                      )}
+              <div className="text-sm text-white/50">
+                {student.lessons} lessons
+              </div>
+            </div>
+          ))}
+        </div>
 
-                      {msg.text}
+        {/* 4 - 10 */}
+        <div className="space-y-4">
+          {students.slice(3).map((student, index) => (
+            <div
+              key={student.name}
+              className="
+                flex items-center justify-between
+                rounded-2xl bg-white/5 border border-white/10
+                px-5 py-4 cursor-pointer
+                transition-all duration-300
+                hover:bg-white/10 hover:scale-[1.03] hover:px-7
+              "
+            >
+              <div className="flex items-center gap-4">
+                <div className="text-xl font-bold text-white/60 w-8">
+                  #{index + 4}
+                </div>
 
-                      <div className="text-[10px] text-right opacity-60 mt-1">
-                        {new Date(msg.created_at).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </div>
-                    </div>
+                <div className="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center font-bold">
+                  {student.name[0]}
+                </div>
+
+                <div>
+                  <div className="font-semibold text-lg">
+                    {student.name}
+                  </div>
+
+                  <div className="text-sm text-white/50">
+                    N5 Student
                   </div>
                 </div>
-              )
-            })}
-
-            <div ref={scrollRef} />
-          </div>
-
-          {/* SCROLL BUTTON */}
-          {showScrollBtn && (
-            <button
-              onClick={scrollToBottom}
-              className="absolute bottom-24 right-6 bg-blue-500 text-white px-3 py-2 rounded-full shadow"
-            >
-              ↓
-            </button>
-          )}
-
-          {/* INPUT */}
-          <div className="backdrop-blur-md bg-white/70 border-t p-4">
-
-            {replyTo && (
-              <div className="mb-2 bg-gray-200 p-2 rounded flex justify-between">
-                <span>{replyTo.text}</span>
-                <button onClick={() => setReplyTo(null)}>✖</button>
               </div>
-            )}
 
-            <div className="flex gap-2">
-              <input
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Xabar yozing..."
-                className="flex-1 px-4 py-2 rounded-full bg-gray-100"
-              />
-              <button
-                onClick={sendMessage}
-                className="px-6 bg-indigo-500 text-white rounded-full"
-              >
-                Send
-              </button>
+              <div className="text-right">
+                <div className="text-green-400 font-bold text-lg">
+                  {student.score}%
+                </div>
+
+                <div className="text-xs text-white/50">
+                  {student.lessons} lessons
+                </div>
+              </div>
             </div>
-
-          </div>
+          ))}
         </div>
 
-        {/* RIGHT PANEL */}
-        <div className="w-72 bg-white border-l p-4 hidden lg:block">
-          <h3 className="font-semibold mb-2">Group Info</h3>
-          <p className="text-sm text-gray-500 mb-4">
-            Platforma foydalanuvchilari uchun chat
+        {/* CTA */}
+        <div className="text-center mt-20">
+          <h2 className="text-3xl md:text-4xl font-bold">
+            Hoziroq hamjamiyatga qo‘shiling 🚀
+          </h2>
+
+          <p className="text-white/60 mt-4 max-w-2xl mx-auto">
+            Reytingga kirish, kuchli o‘quvchilar qatoridan joy olish va
+            JLPT maqsadingizga tezroq yeting.
           </p>
-          <div className="space-y-2">
-            <div className="p-2 bg-gray-100 rounded">👤 120 a'zo</div>
-            <div className="p-2 bg-gray-100 rounded">🟢 10 online</div>
-          </div>
+
+          <button
+            onClick={handleJoin}
+            disabled={loading}
+            className="
+              mt-8 px-10 py-4 rounded-full
+              bg-gradient-to-r from-pink-500 to-purple-500
+              text-white font-semibold
+              shadow-xl
+              hover:scale-110 hover:shadow-2xl
+              transition-all duration-300
+              disabled:opacity-50 disabled:cursor-not-allowed
+            "
+          >
+            {loading ? "Tekshirilmoqda..." : "Hamjamiyatga qo‘shilish"}
+          </button>
         </div>
 
       </div>
-    </div>
+    </section>
   )
 }

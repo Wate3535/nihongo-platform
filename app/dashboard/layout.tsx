@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
 import { DashboardTopbar } from "@/components/dashboard/topbar";
+import CoinReward from "@/components/coin-reward";
 import useIdleLogout from "@/hooks/useIdleLogout";
 import { cn } from "@/lib/utils";
 
@@ -18,8 +19,14 @@ export default function DashboardLayout({
   return (
     <div className="flex min-h-screen bg-background">
 
+      {/* GLOBAL COIN ANIMATION */}
+      <CoinReward />
+
       {/* SIDEBAR */}
-      <DashboardSidebar hovered={hovered} setHovered={setHovered} />
+      <DashboardSidebar
+        hovered={hovered}
+        setHovered={setHovered}
+      />
 
       {/* CONTENT */}
       <div
@@ -29,7 +36,10 @@ export default function DashboardLayout({
         )}
       >
         <DashboardTopbar />
-        <main className="flex-1 p-6">{children}</main>
+
+        <main className="flex-1 p-6">
+          {children}
+        </main>
       </div>
 
     </div>

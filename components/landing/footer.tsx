@@ -125,11 +125,11 @@ export function Footer() {
 
               <li>
                 <a
-                  href="#"
+                  href="https://t.me/+3hE3p76vnBY4NDIy"
                   className="flex items-center gap-2 text-sm hover:text-indigo-500 hover:scale-110 transition"
                 >
                   <Users className="h-4 w-4" />
-                  Telegram group
+                  Telegram guruh
                 </a>
               </li>
 
