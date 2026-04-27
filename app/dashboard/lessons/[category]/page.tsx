@@ -220,6 +220,17 @@ export default function CategoryPage() {
           },
         ])
 
+        await supabase
+  .from("notifications")
+  .insert({
+    user_id: userId,
+    title: "Tanga qo‘shildi 🪙",
+    message: `Hisobingizga +${amount} tanga qo‘shildi.`,
+    type: "coin",
+    is_read: false,
+    link: "/dashboard/profile",
+  })
+
       window.dispatchEvent(
         new CustomEvent(
           "showCoinReward",
@@ -305,6 +316,21 @@ export default function CategoryPage() {
           "Lesson Completed",
           lessonId
         )
+
+        const lessonData = lessons.find(
+  (item) => item.id === lessonId
+)
+
+await supabase
+  .from("notifications")
+  .insert({
+    user_id: user.id,
+    title: "Dars tugatildi 🎉",
+    message: `${lessonData?.title || "Dars"} muvaffaqiyatli tugatildi.`,
+    type: "lesson",
+    is_read: false,
+    link: `/dashboard/lessons/${category}?lesson=${lessonId}`,
+  })
 
         const {
           data: profile,

@@ -75,7 +75,7 @@ export function Certificates() {
   }
 
   return (
-    <Card className="border border-border bg-card rounded-2xl shadow-sm">
+    <Card className="border border-border bg-card rounded-2xl shadow-sm w-full">
       <CardHeader>
         <CardTitle className="text-lg font-bold text-foreground">
           Sertifikat
@@ -96,7 +96,7 @@ export function Certificates() {
           transition={{
             duration: 0.25,
           }}
-          className={`flex items-center gap-4 rounded-2xl border p-4 ${
+          className={`flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-2xl border p-4 ${
             unlocked
               ? "border-green-500 bg-green-500/5"
               : "border-border bg-muted/30"
@@ -132,7 +132,7 @@ export function Certificates() {
               href="/certificates/N5_sertifikat.png"
               download
             >
-              <Button className="rounded-xl">
+              <Button className="rounded-xl w-full sm:w-auto">
                 <Download className="mr-2 h-4 w-4" />
                 Yuklab olish
               </Button>

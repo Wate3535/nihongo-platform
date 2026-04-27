@@ -135,7 +135,7 @@ export function SkillProgress() {
   }
 
   return (
-    <Card className="border border-border bg-card">
+    <Card className="border border-border bg-card rounded-2xl shadow-sm">
       <CardHeader>
         <CardTitle className="text-lg text-foreground">
           Ko‘nikmalar rivoji
@@ -146,15 +146,15 @@ export function SkillProgress() {
         </p>
       </CardHeader>
 
-      <CardContent className="flex flex-col gap-5">
+      <CardContent className="flex flex-col gap-4 sm:gap-5">
         {skills.map((skill) => (
           <div key={skill.name}>
             <div className="mb-1.5 flex items-center justify-between">
-              <span className="text-sm font-medium text-foreground">
+              <span className="text-sm sm:text-base font-medium leading-snug pr-2">
                 {skill.name}
               </span>
 
-              <span className="text-sm font-medium text-muted-foreground">
+              <span className="text-sm sm:text-base font-medium leading-snug pr-2">
                 {skill.progress}%
               </span>
             </div>

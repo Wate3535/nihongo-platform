@@ -111,15 +111,15 @@ export function ProfileCard({ user }: { user: any }) {
   }`
 
   return (
-    <Card className="max-w-md mx-auto rounded-3xl border shadow-xl bg-white text-gray-900 dark:bg-zinc-900 dark:text-white transition-all duration-300">
-      <CardContent className="flex flex-col items-center p-8 text-center">
+<Card className="mx-auto w-full max-w-md rounded-3xl border shadow-xl bg-white text-gray-900 dark:bg-zinc-900 dark:text-white transition-all duration-300">     
+   <CardContent className="flex flex-col items-center p-5 sm:p-8 text-center">
 
         {/* Avatar */}
         <div
           onClick={handleClick}
           className="cursor-pointer relative group"
         >
-          <Avatar className="h-28 w-28 rounded-full overflow-hidden">
+          <Avatar className="h-24 w-24 sm:h-28 sm:w-28 rounded-full overflow-hidden">
             <AvatarImage
               src={avatar || "/default-avatar.png"}
               className="object-cover w-full h-full"
@@ -144,7 +144,7 @@ export function ProfileCard({ user }: { user: any }) {
         />
 
         {/* Name */}
-        <h2 className="mt-5 text-2xl font-bold">
+        <h2 className="mt-4 text-xl sm:text-2xl font-bold break-words">
           {user?.name}
         </h2>
 
@@ -153,7 +153,7 @@ export function ProfileCard({ user }: { user: any }) {
         </p>
 
         {/* Badges */}
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3 flex flex-wrap justify-center gap-2">
           <Badge className="rounded-full px-3 py-1 text-sm">
             {user?.level}
           </Badge>
@@ -180,7 +180,7 @@ export function ProfileCard({ user }: { user: any }) {
         </Link>
 
         {/* Info */}
-        <div className="mt-6 w-full space-y-4 text-left">
+        <div className="mt-5 w-full space-y-3 text-left text-sm sm:text-base">
 
           <div className="flex items-center gap-3">
             <Image

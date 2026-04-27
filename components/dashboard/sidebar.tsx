@@ -22,34 +22,20 @@ type Props = {
   setHovered: (value: boolean) => void
 }
 
-/* ================= PREMIUM LOGO ================= */
 export function NihonGoLogo({
-  hovered,
+  expanded,
 }: {
-  hovered: boolean
+  expanded: boolean
 }) {
   return (
     <Link
       href="/"
       className={cn(
         "group flex items-center w-full",
-        hovered
-          ? "gap-3 px-2 justify-start"
-          : "justify-center px-0"
+        expanded ? "gap-3 px-2 justify-start" : "justify-center px-0"
       )}
     >
-      {/* LOGO */}
-      <div
-        className="
-          relative rounded-2xl p-1 shrink-0
-          will-change-transform transform-gpu
-          transition-all duration-500 ease-out
-          group-hover:scale-110
-
-          group-hover:shadow-[0_0_18px_rgba(99,102,241,0.45)]
-          dark:group-hover:shadow-[0_0_20px_rgba(168,85,247,0.55)]
-        "
-      >
+      <div className="relative rounded-2xl p-1 shrink-0 transition-all duration-300 group-hover:scale-110">
         <Image
           src="/LOGO-MODE.svg"
           alt="NihonGoo"
@@ -58,7 +44,6 @@ export function NihonGoLogo({
           priority
           className="block dark:hidden object-contain"
         />
-
         <Image
           src="/LOGO-DARK.svg"
           alt="NihonGoo"
@@ -69,13 +54,11 @@ export function NihonGoLogo({
         />
       </div>
 
-      {/* TEXT */}
-      {hovered && (
+      {expanded && (
         <div className="leading-tight whitespace-nowrap overflow-hidden">
           <h1 className="text-lg font-bold text-slate-800 dark:text-white">
             NihonGoo
           </h1>
-
           <p className="text-xs text-slate-500 dark:text-slate-300">
             Yapon tili platformasi
           </p>
@@ -90,10 +73,8 @@ export function DashboardSidebar({
   setHovered,
 }: Props) {
   const pathname = usePathname()
-  const [mobileOpen, setMobileOpen] =
-    useState(false)
-  const [userRole, setUserRole] =
-    useState<string | null>(null)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [userRole, setUserRole] = useState<string | null>(null)
 
   useEffect(() => {
     const checkUser = async () => {
@@ -119,9 +100,7 @@ export function DashboardSidebar({
   }, [])
 
   const isActive = (href: string) => {
-    if (href === "/dashboard")
-      return pathname === "/dashboard"
-
+    if (href === "/dashboard") return pathname === "/dashboard"
     return pathname.startsWith(href)
   }
 
@@ -157,22 +136,21 @@ export function DashboardSidebar({
       : []),
   ]
 
-  const sidebarContent = (
+  const renderSidebar = (expanded: boolean) => (
     <div className="flex h-full flex-col">
-
-      {/* TOP LOGO */}
+      {/* TOP */}
       <div className="px-3 py-4 border-b border-border">
-        <NihonGoLogo hovered={hovered} />
+        <NihonGoLogo expanded={expanded} />
       </div>
 
-      {/* NAVIGATION */}
+      {/* NAV */}
       <nav className="flex-1 px-2 py-4">
         <ul className="flex flex-col gap-2">
-
           {navItems.map((item) => (
             <li key={item.href}>
               <Link
                 href={item.href}
+                onClick={() => setMobileOpen(false)}
                 className={cn(
                   "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-all",
                   isActive(item.href)
@@ -184,8 +162,8 @@ export function DashboardSidebar({
 
                 <span
                   className={cn(
-                    "transition-all duration-300 whitespace-nowrap",
-                    hovered
+                    "whitespace-nowrap transition-all duration-300",
+                    expanded
                       ? "opacity-100 ml-2"
                       : "opacity-0 w-0 overflow-hidden"
                   )}
@@ -195,7 +173,6 @@ export function DashboardSidebar({
               </Link>
             </li>
           ))}
-
         </ul>
       </nav>
 
@@ -203,34 +180,25 @@ export function DashboardSidebar({
       <div className="mt-auto px-3 pb-4">
         <Link
           href="/"
-          className="
-            group flex items-center gap-3
-            px-3 py-2.5 rounded-xl
-            transition-all duration-300
-            bg-gradient-to-r from-blue-500/10 to-indigo-500/10
-            hover:from-blue-500 hover:to-indigo-500
-            hover:text-white
-            shadow-sm hover:shadow-md
-            hover:shadow-[0_0_15px_rgba(59,130,246,0.5)]
-          "
+          onClick={() => setMobileOpen(false)}
+          className="group flex items-center gap-3 px-3 py-3 rounded-xl bg-gradient-to-r from-blue-500/10 to-indigo-500/10 hover:from-blue-500 hover:to-indigo-500 hover:text-white transition-all"
         >
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/20 group-hover:bg-white/30 transition">
-            <span className="text-sm">←</span>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/20">
+            ←
           </div>
 
           <span
             className={cn(
               "text-sm font-medium whitespace-nowrap transition-all duration-300",
-              hovered
-                ? "opacity-100 translate-x-0"
-                : "opacity-0 -translate-x-2 w-0 overflow-hidden"
+              expanded
+                ? "opacity-100"
+                : "opacity-0 w-0 overflow-hidden"
             )}
           >
             Bosh sahifaga qaytish
           </span>
         </Link>
       </div>
-
     </div>
   )
 
@@ -238,52 +206,45 @@ export function DashboardSidebar({
     <>
       {/* MOBILE BUTTON */}
       <Button
-        variant="ghost"
-        size="icon"
-        className="fixed left-4 top-4 z-50 lg:hidden"
-        onClick={() =>
-          setMobileOpen(!mobileOpen)
-        }
-      >
-        {mobileOpen ? <X /> : <Menu />}
-      </Button>
+  variant="ghost"
+  size="icon"
+  className={cn(
+    "fixed top-5 z-50 lg:hidden transition-all duration-300",
+   mobileOpen ? "right-[140px]" : "left-4"
+  )}
+  onClick={() => setMobileOpen(!mobileOpen)}
+>
+  {mobileOpen ? <X /> : <Menu />}
+</Button>
 
       {/* MOBILE OVERLAY */}
       {mobileOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/30 backdrop-blur-sm lg:hidden"
-          onClick={() =>
-            setMobileOpen(false)
-          }
+          onClick={() => setMobileOpen(false)}
         />
       )}
 
-      {/* MOBILE SIDEBAR */}
+      {/* MOBILE */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 transform border-r border-border bg-card transition duration-200 lg:hidden",
-          mobileOpen
-            ? "translate-x-0"
-            : "-translate-x-full"
+          "fixed inset-y-0 left-0 z-40 w-72 max-w-[85vw] border-r border-border bg-card transition duration-300 lg:hidden",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {sidebarContent}
+        {renderSidebar(true)}
       </aside>
 
-      {/* DESKTOP SIDEBAR */}
+      {/* DESKTOP */}
       <aside
-        onMouseEnter={() =>
-          setHovered(true)
-        }
-        onMouseLeave={() =>
-          setHovered(false)
-        }
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         className={cn(
           "fixed inset-y-0 left-0 z-30 border-r border-border bg-card transition-all duration-300 hidden lg:block",
           hovered ? "w-64" : "w-16"
         )}
       >
-        {sidebarContent}
+        {renderSidebar(hovered)}
       </aside>
     </>
   )

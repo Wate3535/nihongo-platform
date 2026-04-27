@@ -197,10 +197,10 @@ export default function ProfilePage() {
         O'zlashtirish
       </h1>
 
-      <div className="grid gap-8 lg:grid-cols-12">
+      <div className="grid gap-8 grid-cols-1 lg:grid-cols-12">
 
         {/* LEFT */}
-        <div className="flex flex-col gap-8 lg:col-span-4">
+        <div className="flex flex-col gap-8 lg:col-span-4 order-1">
 
           <div className="transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01]">
             <ProfileCard
@@ -208,14 +208,14 @@ export default function ProfilePage() {
             />
           </div>
 
-          <div className="transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01]">
-            <Certificates />
+          <div className="order-last lg:order-none transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01]">
+              <Certificates />
           </div>
 
         </div>
 
         {/* RIGHT */}
-        <div className="flex flex-col gap-8 lg:col-span-8">
+        <div className="flex flex-col gap-8 lg:col-span-8 order-2">
 
           <div className="transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01]">
             <SkillProgress />
@@ -282,7 +282,7 @@ export default function ProfilePage() {
                         !showAll
                       )
                     }
-                    className="mt-3 w-full rounded-xl border px-4 py-2 text-sm font-medium transition-all duration-300 hover:scale-[1.01] hover:bg-muted"
+                    className="mt-3 w-full rounded-xl border px-4 py-3 text-sm sm:text-base font-medium transition-all duration-300 hover:bg-muted"
                   >
                     {showAll
                       ? "🔼 Yopish"

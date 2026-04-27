@@ -31,37 +31,57 @@ export function Hero() {
 
   // 🔥 Button logic
   const handleBuy = async () => {
-    if (loading) return
-    setLoading(true)
+  if (loading) return
+  setLoading(true)
 
-    try {
-      const { data: authData } = await supabase.auth.getUser()
+  try {
+    const { data: authData } = await supabase.auth.getUser()
 
-      if (!authData?.user) {
-        router.push("/login?redirect=/tolov")
-        return
-      }
-
-      const userId = authData.user.id
-
-      const { data: enrollment } = await supabase
-        .from("enrollments")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle()
-
-      if (enrollment?.status === "approved") {
-        router.push("/dashboard")
-      } else {
-        router.push("/tolov")
-      }
-    } catch (err) {
-      console.log(err)
-    } finally {
-      setLoading(false)
+    // 🔥 User yo‘q = yangi user
+    if (!authData?.user) {
+      router.push("/register")
+      return
     }
-  }
 
+    const userId = authData.user.id
+
+    // 🔥 To‘lov tekshirish
+    const { data: enrollment } = await supabase
+      .from("enrollments")
+      .select("status")
+      .eq("user_id", userId)
+      .maybeSingle()
+
+    if (enrollment?.status !== "approved") {
+      router.push("/tolov")
+      return
+    }
+
+    // 🔥 Active time tekshirish
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("last_seen")
+      .eq("id", userId)
+      .maybeSingle()
+
+    const lastSeen = profile?.last_seen
+      ? new Date(profile.last_seen).getTime()
+      : 0
+
+    const now = Date.now()
+    const twoHours = 2 * 60 * 60 * 1000
+
+    if (now - lastSeen <= twoHours) {
+      router.push("/dashboard")
+    } else {
+      router.push("/login")
+    }
+  } catch (error) {
+    console.log(error)
+  } finally {
+    setLoading(false)
+  }
+}
   // 🌸 Spring Sakura
   const SpringAnimation = () => {
     const petals = Array.from({ length: 24 })

@@ -61,6 +61,16 @@ export function RegisterForm() {
       return
     }
 
+    // 🔔 WELCOME NOTIFICATION
+    await supabase.from("notifications").insert({
+      user_id: user.id,
+      title: "Xush kelibsiz 🎉",
+      message: "Siz tizimga muvaffaqiyatli kirdingiz.",
+      type: "system",
+      is_read: false,
+      link: "/dashboard",
+    })
+
     router.push("/tolov")
   }
 
@@ -76,7 +86,6 @@ export function RegisterForm() {
 
   return (
     <div className="flex flex-col gap-4">
-
       {/* Back Button */}
       <button
         type="button"
@@ -150,7 +159,11 @@ export function RegisterForm() {
               "
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              {showPassword ? (
+                <EyeOff size={16} />
+              ) : (
+                <Eye size={16} />
+              )}
             </button>
           </div>
         </div>
@@ -194,7 +207,9 @@ export function RegisterForm() {
             hover:scale-105 hover:bg-blue-600
           "
         >
-          {loading ? "Yuklanmoqda..." : "Hisob Yaratish"}
+          {loading
+            ? "Yuklanmoqda..."
+            : "Hisob Yaratish"}
         </Button>
       </form>
     </div>
