@@ -452,7 +452,7 @@ const SummerAnimation = () => {
     }}
     className="inline-block"
   >
-    va
+  
   </motion.span>
 
   <motion.span
