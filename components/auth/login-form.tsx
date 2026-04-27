@@ -14,29 +14,83 @@ function LoginFormInner() {
 
   const redirect = searchParams.get("redirect")
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [showPassword, setShowPassword] =
+    useState(false)
 
-  async function handleSubmit(e: React.FormEvent) {
+  const [email, setEmail] =
+    useState("")
+
+  const [password, setPassword] =
+    useState("")
+
+  const [loading, setLoading] =
+    useState(false)
+
+  const [error, setError] =
+    useState("")
+
+  async function handleSubmit(
+    e: React.FormEvent
+  ) {
     e.preventDefault()
 
     setLoading(true)
     setError("")
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    const {
+      data,
+      error: loginError,
+    } =
+      await supabase.auth.signInWithPassword(
+        {
+          email,
+          password,
+        }
+      )
 
-    if (error) {
-      setError(error.message)
+    if (loginError) {
+      setError(loginError.message)
       setLoading(false)
       return
     }
 
+    const user = data.user
+
+    if (!user) {
+      setError("User topilmadi")
+      setLoading(false)
+      return
+    }
+
+    // 🔐 New session token
+    const token =
+      crypto.randomUUID()
+
+    // ✅ Save token to DB
+    const {
+      error: sessionError,
+    } = await supabase
+      .from("profiles")
+      .update({
+        active_session: token,
+      })
+      .eq("id", user.id)
+
+    if (sessionError) {
+      setError(
+        "Session saqlanmadi"
+      )
+      setLoading(false)
+      return
+    }
+
+    // ✅ Save token locally
+    localStorage.setItem(
+      `active_session_${user.id}`,
+      token
+    )
+
+    // 🚀 Redirect
     if (redirect) {
       router.push(redirect)
     } else {
@@ -46,11 +100,12 @@ function LoginFormInner() {
 
   return (
     <div className="flex flex-col gap-4">
-
-      {/* 🔙 Back Button */}
+      {/* Back Button */}
       <button
         type="button"
-        onClick={() => router.push("/")}
+        onClick={() =>
+          router.push("/")
+        }
         className="
           w-fit flex items-center gap-2
           text-sm text-muted-foreground
@@ -74,10 +129,9 @@ function LoginFormInner() {
           animate-fade-in-up
         "
       >
-
         {/* ERROR */}
         {error && (
-          <div className="text-red-500 text-sm animate-shake">
+          <div className="text-sm text-red-500 animate-shake">
             {error}
           </div>
         )}
@@ -85,11 +139,16 @@ function LoginFormInner() {
         {/* EMAIL */}
         <div className="flex flex-col gap-2">
           <Label>Email</Label>
+
           <Input
             type="email"
             placeholder="you@example.com"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) =>
+              setEmail(
+                e.target.value
+              )
+            }
             required
             className="
               transition-all duration-200
@@ -105,10 +164,18 @@ function LoginFormInner() {
 
           <div className="relative">
             <Input
-              type={showPassword ? "text" : "password"}
+              type={
+                showPassword
+                  ? "text"
+                  : "password"
+              }
               placeholder="Enter your password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) =>
+                setPassword(
+                  e.target.value
+                )
+              }
               required
               className="
                 pr-10
@@ -120,21 +187,33 @@ function LoginFormInner() {
 
             <button
               type="button"
+              onClick={() =>
+                setShowPassword(
+                  !showPassword
+                )
+              }
               className="
                 absolute right-3 top-1/2 -translate-y-1/2
                 transition-transform duration-200
                 hover:scale-110
               "
-              onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              {showPassword ? (
+                <EyeOff size={16} />
+              ) : (
+                <Eye size={16} />
+              )}
             </button>
           </div>
 
           <div className="flex justify-end">
             <button
               type="button"
-              onClick={() => router.push("/forgot-password")}
+              onClick={() =>
+                router.push(
+                  "/forgot-password"
+                )
+              }
               className="
                 text-sm text-blue-500
                 transition-all duration-200
@@ -155,12 +234,14 @@ function LoginFormInner() {
             bg-gradient-to-r from-blue-500 to-indigo-500
             text-white
             transition-all duration-300
-            hover:scale-105 hover:shadow-lg hover:from-blue-600 hover:to-indigo-600
+            hover:scale-105 hover:shadow-lg
+            hover:from-blue-600 hover:to-indigo-600
           "
         >
-          {loading ? "Kuting..." : "Log In"}
+          {loading
+            ? "Kuting..."
+            : "Log In"}
         </Button>
-
       </form>
     </div>
   )
@@ -168,7 +249,11 @@ function LoginFormInner() {
 
 export function LoginForm() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div>Loading...</div>
+      }
+    >
       <LoginFormInner />
     </Suspense>
   )
