@@ -58,11 +58,13 @@ export default function DashboardLayout({
         localStorage.getItem(storageKey);
 
       // ⏳ Agar yangi login bo‘lsa localStorage hali yozilmagan bo‘lishi mumkin
-      if (!localToken) {
-        checkingRef.current = false;
-        return;
-      }
-
+     if (!localToken) {
+  setTimeout(() => {
+    checkingRef.current = false
+    checkSession()
+  }, 1500)
+  return
+}
       const { data: profile } =
         await supabase
           .from("profiles")
