@@ -22,13 +22,20 @@ export default function DashboardLayout({
   const checkingRef = useRef(false);
 
   useEffect(() => {
-    checkSession();
+    // ⏳ Birinchi check biroz kechroq
+    const firstTimer = setTimeout(() => {
+      checkSession();
+    }, 1200);
 
+    // 🔄 Keyin har 5 sekund tekshiradi
     const interval = setInterval(() => {
       checkSession();
     }, 5000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(firstTimer);
+      clearInterval(interval);
+    };
   }, []);
 
   async function checkSession() {
@@ -50,6 +57,12 @@ export default function DashboardLayout({
       const localToken =
         localStorage.getItem(storageKey);
 
+      // ⏳ Agar yangi login bo‘lsa localStorage hali yozilmagan bo‘lishi mumkin
+      if (!localToken) {
+        checkingRef.current = false;
+        return;
+      }
+
       const { data: profile } =
         await supabase
           .from("profiles")
@@ -60,13 +73,16 @@ export default function DashboardLayout({
       const dbToken =
         profile?.active_session;
 
+      // ❌ Faqat token mismatch bo‘lsa logout
       if (
-        !localToken ||
-        !dbToken ||
+        dbToken &&
         localToken !== dbToken
       ) {
         await supabase.auth.signOut();
-        localStorage.removeItem(storageKey);
+
+        localStorage.removeItem(
+          storageKey
+        );
 
         alert(
           "Sizning hisobingiz boshqa qurilmada ochildi."
@@ -91,7 +107,9 @@ export default function DashboardLayout({
       <div
         className={cn(
           "flex flex-1 flex-col transition-all duration-300",
-          hovered ? "lg:ml-64" : "lg:ml-16"
+          hovered
+            ? "lg:ml-64"
+            : "lg:ml-16"
         )}
       >
         <DashboardTopbar />
