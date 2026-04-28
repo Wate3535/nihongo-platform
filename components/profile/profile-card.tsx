@@ -164,13 +164,29 @@ export function ProfileCard({ user }: { user: any }) {
         </div>
 
         {/* Tangalar */}
-        <div className="mt-5 w-full rounded-2xl bg-yellow-500/10 border border-yellow-400/30 px-4 py-3 flex items-center justify-center gap-2">
-          <span className="text-xl">🪙</span>
+       <div
+  className="
+    mt-5 w-full rounded-2xl px-4 py-3
+    flex items-center justify-center gap-2
+    bg-yellow-500/10 border border-yellow-400/30 shadow-md
+    transition-all duration-300 cursor-pointer
+    hover:scale-[1.03]
+    hover:bg-yellow-400/15
+    hover:shadow-[0_0_25px_rgba(255,215,0,0.55)]
+  "
+>
+  <Image
+    src="/star.png"
+    alt="Coin"
+    width={30}
+    height={30}
+    className="object-contain"
+  />
 
-          <span className="text-xl font-bold text-yellow-500">
-            {tangalar} Tangalar
-          </span>
-        </div>
+  <span className="text-xl font-bold text-yellow-500">
+    {tangalar} Tangalar
+  </span>
+</div>
 
         {/* Edit */}
         <Link href="/profile/edit" className="w-full">

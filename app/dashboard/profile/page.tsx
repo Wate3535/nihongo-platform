@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { ProfileCard } from "@/components/profile/profile-card";
 import { SkillProgress } from "@/components/profile/skill-progress";
 import { Certificates } from "@/components/profile/certificates";
+import Image from "next/image";
 
 export default function ProfilePage() {
   const [userData, setUserData] = useState<any>(null);
@@ -221,18 +222,37 @@ export default function ProfilePage() {
             <SkillProgress />
           </div>
 
-          {/* TANGALAR */}
-          <div className="rounded-3xl border bg-card p-6 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+         {/* TANGALAR */}
+       <div className="rounded-3xl border bg-card p-6 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
 
-            <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-xl font-bold">
-                🪙 Tangalar
-              </h2>
+      <div className="mb-5 flex items-center justify-between">
+      <div className="flex items-center gap-2">
+      <Image
+        src="/star.png"
+        alt="Coin"
+        width={30}
+        height={30}
+        className="object-contain"
+      />
 
-              <span className="text-2xl font-bold text-yellow-500">
-                {tangalar}
-              </span>
-            </div>
+      <h2 className="text-xl font-bold">
+        Tangalar
+      </h2>
+    </div>
+
+    <div
+      className="
+        px-4 py-1 rounded-2xl
+        bg-yellow-500/10 border border-yellow-400/30
+        text-2xl font-bold text-yellow-500
+        shadow-md transition-all duration-300
+        hover:scale-110
+        hover:shadow-[0_0_25px_rgba(255,215,0,0.55)]
+      "
+    >
+      {tangalar}
+    </div>
+  </div>
 
             {/* HISTORY */}
             <div>
